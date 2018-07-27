@@ -13,7 +13,7 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<name>Nexus-Listener Service</name>
 	<url>http://github.com/qbicsoftware/nexus-listener-service</url>
-	<description>Service that listenes for changes in the Nexus repository and updates the testing-portal with the new file(s).</description>
+	<description>Service that listens for changes in the Nexus repository and updates the testing-portal with the new file(s).</description>
 	<packaging>jar</packaging>
 	<!-- we only need to tell maven where to find our parent pom and other QBiC dependencies -->
 	<repositories>
@@ -67,7 +67,7 @@
 						<configuration>
 							<archive>
 								<manifest>
-									<mainClass>life.qbic.service.nexus-listenerEntryPoint</mainClass>
+									<mainClass>life.qbic.service.NexusListenerEntryPoint</mainClass>
 								</manifest>
 							</archive>
 							<descriptorRefs>
