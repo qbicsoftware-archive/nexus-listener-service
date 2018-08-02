@@ -21,4 +21,5 @@ target/
 logs/
 
 # Other
+commandline_test.txt
 **/.factorypath

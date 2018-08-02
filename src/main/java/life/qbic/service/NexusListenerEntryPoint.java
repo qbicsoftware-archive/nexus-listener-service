@@ -10,9 +10,9 @@ import org.apache.logging.log4j.Logger;
  * 
  * The purpose of this class is to act as a bridge between the command line and the <i>real</i> implementation of a tool by using a {@link ToolExecutor}.
  */
-public class nexus-listenerEntryPoint {
+public class NexusListenerEntryPoint {
 
-    private static final Logger LOG = LogManager.getLogger(nexus-listenerEntryPoint.class);
+    private static final Logger LOG = LogManager.getLogger(NexusListenerEntryPoint.class);
 
     /**
      * Main method.
@@ -22,6 +22,6 @@ public class nexus-listenerEntryPoint {
     public static void main(final String[] args) {
         LOG.debug("Starting nexus-listener tool");
         final ToolExecutor executor = new ToolExecutor();
-        executor.invoke(nexus-listenerService.class, nexus-listenerCommand.class, args);
+        executor.invoke(NexusListenerService.class, NexusListenerCommand.class, args);
     }
 }
