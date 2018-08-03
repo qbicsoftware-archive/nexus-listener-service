@@ -2,7 +2,7 @@ package life.qbic.service;
 
 import org.junit.Test;
 
-public class HandlerTest {
+public class FileSystemHandlerTest {
 
     @Test
     public void testServiceExecution() {

@@ -21,11 +21,11 @@ import java.security.NoSuchAlgorithmException;
 
 import java.io.IOException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.*;
 
 
 
@@ -39,8 +39,7 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
     private volatile NanoHTTPD httpServer;
 	private final AtomicBoolean serverStarted;
 	private String baseRepo = "";
-    private List<String> artifacts = new ArrayList<String>();
-	//private boolean snapshot = false;
+    private List<String> artifacts = new ArrayList();
 	private String secretKey = "";
     private String url = "";
 
@@ -63,9 +62,7 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
 		baseRepo = command.url;
 		secretKey = command.key;
 		artifacts = command.artifactType;
-
-
-		//fillArtifactList(command.artifact_type.split("\\s"));
+		artifacts.add(command.firstArtifact);
 
 
          httpServer = new NanoHTTPD(command.port) {
@@ -102,21 +99,23 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
 			    //need header information to get the signature (HMAC hashed value)
                 headers = session.getHeaders();
                 //need to do parseBody() in order to fill the map files with the body of the session
-                session.parseBody(files);
+                    session.parseBody(files);
 
                 // TODO: can we get "postData" from HTTPSession.POST_DATA ???
                 final String payload = files.get("postData");
                 // payload can be turned into a JSON object
 
 
-
                 //verify data: valid repository sends Post request?
                 if(hashKey(secretKey, payload, headers.get("x-nexus-webhook-signature"))){
-                    //TODO: check if toString() serves JSON.stringify(req.body) as suggested by sonatype
 
-                    if(artifacts.contains(files.get("component:name"))){
+                    JSONObject jsonBody =  parseJSON(payload);
 
-                        url = buildURL(files);
+                    if(artifactRelevant(jsonBody)){
+
+                        url = buildURL(jsonBody);
+
+                        //TODO: trigger handler with the given URL now (and not if change is not relevant)!
 
                         LOG.info("Verified POST request");
                     } else{
@@ -127,13 +126,16 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
                 }
 
 			} catch (IOException ioe) {
-				LOG.error("SERVER INTERNAL ERROR: IOException"+ioe.getMessage());
+				LOG.error("SERVER INTERNAL ERROR: IOException", ioe);
 				return NanoHTTPD.newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "SERVER INTERNAL ERROR: IOException: " + ioe.getMessage());
 			} catch (NanoHTTPD.ResponseException re) {
-				LOG.error(re.getMessage());
+				LOG.error("NO RESPONSE FROM SERVER: ResponseException", re);
 				return NanoHTTPD.newFixedLengthResponse(re.getStatus(), MIME_PLAINTEXT, re.getMessage());
-			}
-		}
+			} catch (ParseException pe) {
+                LOG.error("ERROR WHILE PARSING BODY TO JSON: ParseException", pe);
+                return NanoHTTPD.newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, pe.getMessage());
+            }
+        }
         LOG.info("Data not verified");
         return NanoHTTPD.newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT,"Ok"); // Or postParameter.
 	}
@@ -156,7 +158,8 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
 
             String hmac = Hex.encodeHexString(digest);
 
-            if(hmac == hash){
+
+            if(hmac.equals(hash)){
 
                 return true;
             }
@@ -170,33 +173,59 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
          return false;
      }
 
+     private JSONObject parseJSON(String toJSON) throws ParseException {
+         JSONParser parser = new JSONParser();
+         JSONObject json = (JSONObject) parser.parse(toJSON);
+
+         LOG.info("Parse data to JSON {} to {} ", toJSON ,json);
+
+         return json;
+     }
+
+    /**
+     * This Method tests if the post request informs the user about an artifact that he has defined as relevant with the commandline option -t
+     * @param jsonBody
+     * @return
+     * @throws ParseException
+     */
+     private boolean artifactRelevant(JSONObject jsonBody) throws ParseException {
+
+         //test if artifact type is relevant, is it specified with the commandline?
+         String name = (parseJSON(jsonBody.get("component").toString()).get("name")).toString();
+         String[] splitName = name.split("-");
+
+         return artifacts.contains(splitName[splitName.length -1]);
+     }
+
     /**
      * Method that builds the URL of the updated repository
      * @param body
      * @return
      */
-     public String buildURL(Map<String, String> body){
+     public String buildURL(JSONObject body) throws ParseException {
+
 
          //access the POST request's parameters:
-         String repo = body.get("repositoryName");
-         String name = body.get("component:name");
-         String group = body.get("component:group");
-         String assetVersion = body.get("component:version");
-         String version = body.get("component:version");
-         //String id = body.get("component:id");
+         String repo = body.get("repositoryName").toString();
+         JSONObject component = parseJSON(body.get("component").toString()); //need to access sub-elements of component!
+         String name = component.get("name").toString();
+         String group = component.get("group").toString().replace(".","/");
+         String assetVersion = component.get("version").toString();
+         String version = component.get("version").toString();
 
-         //String postParameter = session.getParms().get("parameter"); the same???
-         String asset = buildAsset(repo,assetVersion);
+         String asset = buildAsset(name,assetVersion);
 
          //process version, if snapshot process version for url (but not for asset specification!
-         if(version.contains("snapshot")){
+         if(repo.contains("snapshot")){
              version = version.split("-")[0]+"-SNAPSHOT"; //raw version
          }
 
          String url =  baseRepo+"/repository/"+repo+"/"+group+"/"+name+"/"+version+"/"+asset; //need asset specification?
+         LOG.info(url);
 
         return url;
      }
+
 
     /**
      * Method that specifies the asset from the updated repository, which contains either the .war or the .jar file
@@ -207,7 +236,7 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
 
         String format = "";
 
-        if(name.contains("-portlet")){
+        if(name.contains("portlet")){
             format = ".war";
         }else{
             format = ".jar";
@@ -216,16 +245,6 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
         return name+"-"+version+format;
     }
 
-/*    *//**
-     * Method that parses the artifact from the commandline
-     * @param elem
-     *//*
-    private void fillArtifactList(String[] elem){
-
-        for(int j = 0; j < elem.length; j++){
-            artifacts.add(elem[j]);
-        }
-    }*/
 
 		@Override
     public void shutdown() {
@@ -235,7 +254,7 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
 		}
     }
 
-    //
+    //###############GETTER-Methods ####################################################################################
 
     public String getUrl() {
         return url;

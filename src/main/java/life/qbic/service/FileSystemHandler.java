@@ -1,6 +1,6 @@
 package life.qbic.service;
 
-public class Handler {
+public class FileSystemHandler {
 
     //write file to outpath
 }

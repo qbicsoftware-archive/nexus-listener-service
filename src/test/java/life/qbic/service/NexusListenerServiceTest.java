@@ -13,7 +13,7 @@ import static org.junit.Assert.assertFalse;
  * Unit tests for nexus-listenerService.
  */
 public class NexusListenerServiceTest  {
-    // TODO: write unit tests (you do not need to test ToolExecutor, just test the execute() and shutdown() methods of your service)
+    // TODO: write unit tests (you do not need to firstArtifact ToolExecutor, just firstArtifact the execute() and shutdown() methods of your service)
 
     NexusListenerService nls;
     NexusListenerCommand nlc;
@@ -38,23 +38,24 @@ public class NexusListenerServiceTest  {
         nls.execute();
         assertTrue(nls.getHttpServer().isAlive());
 
-        // --> woanders hin assertNotNull(nls.getArtifacts()); test ob commandline String artifacts richtig in Liste übersetzt wird Picocli?
+        // --> woanders hin assertNotNull(nls.getArtifacts()); firstArtifact ob commandline String artifacts richtig in Liste übersetzt wird Picocli?
 
     }
 
     @Test
     public void testPOSTProcessing() {
-        //TODO: test with data!
+        //TODO: firstArtifact with data!
     }
 
     @Test
     public void testBuildURL() {
+
         assertEquals(".....",nls.getUrl());
     }
 
     @Test
     public void testHMAC() {
-        //TODO: generate Key, test if key equals the build URL
+        //TODO: generate Key, firstArtifact if key equals the build URL
        // assertEquals("",nls.buildURL());
     }
 

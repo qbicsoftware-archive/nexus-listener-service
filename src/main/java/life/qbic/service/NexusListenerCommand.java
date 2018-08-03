@@ -2,6 +2,7 @@ package life.qbic.service;
 
 import life.qbic.cli.AbstractCommand;
 
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import java.util.List;
@@ -27,7 +28,9 @@ public class NexusListenerCommand extends AbstractCommand {
 	    public String url;
 		
 		@Option(names={"-t", "--type"}, description="List of type of artifacts to deploy.", required=true)
-	    public List<String> artifactType;
+		String firstArtifact;
+	    @CommandLine.Parameters
+		List<String> artifactType;
 	
 		@Option(names={"--portletFolder"}, description="Folder on which portlets are copied.", required=true)
 	    public String outPortlet;
