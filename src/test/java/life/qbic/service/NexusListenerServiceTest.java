@@ -1,12 +1,20 @@
 package life.qbic.service;
 
+import org.apache.commons.codec.binary.Hex;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.*;
+import org.junit.rules.ExpectedException;
+
+import static org.junit.Assert.*;
 
 
 /**
@@ -15,6 +23,9 @@ import static org.junit.Assert.assertFalse;
 public class NexusListenerServiceTest  {
     // TODO: write unit tests (you do not need to firstArtifact ToolExecutor, just firstArtifact the execute() and shutdown() methods of your service)
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     NexusListenerService nls;
     NexusListenerCommand nlc;
 
@@ -22,10 +33,10 @@ public class NexusListenerServiceTest  {
     public void setUp() throws Exception{
         nlc = new NexusListenerCommand();
 
-        //nlc.artifact_type = "";
-        nlc.key = "";
+        nlc.artifactType = new ArrayList<>();
+        nlc.key = "123456789";
         nlc.port = 8080;
-        nlc.url = "";
+        nlc.url = "https://qbic-repo.am10.uni-tuebingen.de";
         nlc.outNonPortlet = "";
         nlc.outPortlet = "";
 
@@ -34,33 +45,130 @@ public class NexusListenerServiceTest  {
     }
     @Test
     public void testServiceExecution() {
-        //need to trigger execute before?
         nls.execute();
         assertTrue(nls.getHttpServer().isAlive());
+    }
 
-        // --> woanders hin assertNotNull(nls.getArtifacts()); firstArtifact ob commandline String artifacts richtig in Liste übersetzt wird Picocli?
+
+    @Test
+    public void testBuildURL() throws Exception{
+
+        String payload = "{\"timestamp\":\"2018-08-02T12:53:31.922+0000\",\"nodeId\":\"E72CE436-C789E185-BFF8B757-A30A899F-27751D2E\",\"initiator\":\"deployer/52.54.40.118\"," +
+                "\"repositoryName\":\"maven-snapshots\",\"action\":\"CREATED\",\"component\":{\"id\":\"4b378653591c67225df912359675c3c1\",\"format\":\"maven2\"," +
+                "\"name\":\"vaccine-designer-portlet\",\"group\":\"life.qbic\",\"version\":\"1.0.0-20180802.125333-1\"}}";
+        JSONParser parser = new JSONParser();
+        JSONObject json = (JSONObject) parser.parse(payload);
+
+        assertEquals("https://qbic-repo.am10.uni-tuebingen.de/repository/maven-snapshots/life/qbic/vaccine-designer-portlet/1.0.0-SNAPSHOT/vaccine-designer-portlet-1.0.0-20180802.125333-1.war",
+                nlc.url+nls.buildURL(json)); //add nlc.url because method uses baseRepository variable that is not set within the test
 
     }
 
     @Test
-    public void testPOSTProcessing() {
-        //TODO: firstArtifact with data!
+    public void testPayloadContainsRepositoryName() throws Exception{
+
+        expectedException.expect(life.qbic.exceptions.ApplicationException.class);
+        expectedException.expectMessage("PARSE EXCEPTION: Missing Information about the repositoryName");
+
+        String payload = "{\"timestamp\":\"2018-08-02T12:53:31.922+0000\",\"nodeId\":\"E72CE436-C789E185-BFF8B757-A30A899F-27751D2E\",\"initiator\":\"deployer/52.54.40.118\",\"action\":\"CREATED\",\"component\":{\"id\":\"4b378653591c67225df912359675c3c1\",\"format\":\"maven2\",\"name\":\"vaccine-designer-portlet\",\"group\":\"life.qbic\",\"version\":\"1.0.0-20180802.125333-1\"}}";
+        JSONParser parser = new JSONParser();
+        JSONObject json = (JSONObject) parser.parse(payload);
+        nls.buildURL(json);
+
     }
 
     @Test
-    public void testBuildURL() {
+    public void testPayloadContainsComponent() throws Exception{
 
-        assertEquals(".....",nls.getUrl());
+        expectedException.expect(life.qbic.exceptions.ApplicationException.class);
+        expectedException.expectMessage("PARSE EXCEPTION: Missing Information about the component");
+
+        String payload = "{\"timestamp\":\"2018-08-02T12:53:31.922+0000\",\"nodeId\":\"E72CE436-C789E185-BFF8B757-A30A899F-27751D2E\",\"initiator\":\"deployer/52.54.40.118\",\"repositoryName\":\"maven-snapshots\",\"action\":\"CREATED\"}";
+        JSONParser parser = new JSONParser();
+        JSONObject json = (JSONObject) parser.parse(payload);
+        nls.buildURL(json);
+
     }
+
+    @Test    public void testPayloadContainsComponentName() throws Exception{
+
+        expectedException.expect(life.qbic.exceptions.ApplicationException.class);
+        expectedException.expectMessage("PARSE EXCEPTION: Missing Information about the components name");
+
+        String payload = "{\"timestamp\":\"2018-08-02T12:53:31.922+0000\",\"nodeId\":\"E72CE436-C789E185-BFF8B757-A30A899F-27751D2E\",\"initiator\":\"deployer/52.54.40.118\"," +
+                "\"repositoryName\":\"maven-snapshots\",\"action\":\"CREATED\",\"component\":{\"id\":\"4b378653591c67225df912359675c3c1\",\"format\":\"maven2\"," +
+                "\"group\":\"life.qbic\",\"version\":\"1.0.0-20180802.125333-1\"}}";
+        JSONParser parser = new JSONParser();
+        JSONObject json = (JSONObject) parser.parse(payload);
+        nls.buildURL(json);
+
+
+    }
+
+    @Test
+    public void testPayloadContainsComponentVersion() throws Exception{
+
+        expectedException.expect(life.qbic.exceptions.ApplicationException.class);
+        expectedException.expectMessage("PARSE EXCEPTION: Missing Information about the components version");
+
+        String payload = "{\"timestamp\":\"2018-08-02T12:53:31.922+0000\",\"nodeId\":\"E72CE436-C789E185-BFF8B757-A30A899F-27751D2E\",\"initiator\":\"deployer/52.54.40.118\"," +
+                "\"repositoryName\":\"maven-snapshots\",\"action\":\"CREATED\",\"component\":{\"id\":\"4b378653591c67225df912359675c3c1\",\"format\":\"maven2\"," +
+                "\"name\":\"vaccine-designer-portlet\",\"group\":\"life.qbic\"}}";
+        JSONParser parser = new JSONParser();
+        JSONObject json = (JSONObject) parser.parse(payload);
+        nls.buildURL(json);
+
+
+    }
+
+    @Test
+    public void testPayloadContainsComponentGroup() throws Exception{
+
+        String payload = "{\"timestamp\":\"2018-08-02T12:53:31.922+0000\",\"nodeId\":\"E72CE436-C789E185-BFF8B757-A30A899F-27751D2E\",\"initiator\":\"deployer/52.54.40.118\"," +
+                "\"repositoryName\":\"maven-snapshots\",\"action\":\"CREATED\",\"component\":{\"id\":\"4b378653591c67225df912359675c3c1\",\"format\":\"maven2\"," +
+                "\"name\":\"vaccine-designer-portlet\",\"group\":\"life.qbic\",\"version\":\"1.0.0-20180802.125333-1\"}}";
+        JSONParser parser = new JSONParser();
+        JSONObject json = (JSONObject) parser.parse(payload);
+        nls.buildURL(json);
+
+
+    }
+
 
     @Test
     public void testHMAC() {
-        //TODO: generate Key, firstArtifact if key equals the build URL
-       // assertEquals("",nls.buildURL());
+
+        String payload = "{\"timestamp\":\"2018-08-02T12:53:31.922+0000\",\"nodeId\":\"E72CE436-C789E185-BFF8B757-A30A899F-27751D2E\",\"initiator\":\"deployer/52.54.40.118\"," +
+                "\"repositoryName\":\"maven-snapshots\",\"action\":\"CREATED\",\"component\":{\"id\":\"4b378653591c67225df912359675c3c1\",\"format\":\"maven2\"," +
+                "\"name\":\"vaccine-designer-portlet\",\"group\":\"life.qbic\",\"version\":\"1.0.0-20180802.125333-1\"}}";
+
+        assertEquals("29e994b9bc5c6aed315e0e17ba19356ab0767adf", nls.hashKey(nlc.key,payload));
     }
 
     @Test
+    public void testHMACwithWrongSignature() {
+
+        String payload = "{\"timestamp\":\"2018-08-02T12:53:31.922+0000\",\"nodeId\":\"E72CE436-C789E185-BFF8B757-A30A899F-27751D2E\",\"initiator\":\"deployer/52.54.40.118\"," +
+                "\"repositoryName\":\"maven-snapshots\",\"action\":\"CREATED\",\"component\":{\"id\":\"4b378653591c67225df912359675c3c1\",\"format\":\"maven2\"," +
+                "\"name\":\"vaccine-designer-portlet\",\"group\":\"life.qbic\",\"version\":\"1.0.0-20180802.125333-1\"}}";
+
+        assertNotSame("29e994bbc5c6aed315e0e17ba19356ab0767adf", nls.hashKey(nlc.key,payload));
+    }
+
+    @Test
+    public void testHMACwithWrongPayload() {
+
+        String payload = "{\"timestamp\":\"2018-08-02T12:53:31.922+0000\",\"nodeId\":\"E72CE436-C789E185-BFF8B757-A30A899F-27751D2E\",\"initiator\":\"deployer/52.54.40.118\"," +
+                "\"repositoryName\":\"mvaen-snapshots\",\"action\":\"CREATED\",\"component\":{\"id\":\"4b378653591c67225df912359675c3c1\",\"format\":\"maven2\"," +
+                "\"name\":\"vaccine-designer-portlet\",\"group\":\"life.qbic\",\"version\":\"1.0.0-20180802.125333-1\"}}";
+
+        assertNotSame("29e994bbc5c6aed315e0e17ba19356ab0767adf", nls.hashKey(nlc.key,payload));
+    }
+
+
+    @Test
     public void testServiceShutdown() {
+        nls.execute(); //execute a service before shutdown
         nls.shutdown();
         assertFalse(nls.getHttpServer().isAlive());
     }
