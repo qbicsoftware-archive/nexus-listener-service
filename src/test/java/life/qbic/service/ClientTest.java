@@ -1,17 +1,13 @@
 package life.qbic.service;
 
-import org.junit.Assert;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
 
-import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 public class ClientTest {
@@ -21,21 +17,11 @@ public class ClientTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     Client client;
-    NexusListenerService nls;
-    NexusListenerCommand nlc;
 
     @Before
-    public void setUp() throws Exception{
- /*       nlc = new NexusListenerCommand();
+    public void setUp(){
 
-        nlc.artifactType = new ArrayList<>();
-        nlc.key = "123456789";
-        nlc.port = 8080;
-        nlc.url = "https://qbic-repo.am10.uni-tuebingen.de";
-        nlc.outNonPortlet = "";
-        nlc.outPortlet = "";
-
-        nls = new NexusListenerService(nlc);*/
+        //http://media.einfachtierisch.de/thumbnail/600/390/media.einfachtierisch.de/images/2015/12/Katze-streicheln-Jakub-Zak-Shutterstock-305145185.jpg
         client = new Client("https://github.com/qbicsoftware/nexus-listener-service/blob/development/src/test/resources/vaccine-designer-portlet-1.0.0-20180802.133341-3.war");
 
     }

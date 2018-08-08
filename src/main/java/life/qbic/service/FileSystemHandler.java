@@ -3,8 +3,10 @@ package life.qbic.service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * This class is responsible for moving the the changed artifact to the desired location e.g. to the liferay filesystem in order to update the portal
@@ -16,16 +18,26 @@ public class FileSystemHandler {
     private String tempPath;
     private String outPath;
 
-    public FileSystemHandler(String tempPath, String outPath, String fileName){
+    public FileSystemHandler(String tempPath, String out, String fileName){
         this.tempPath = tempPath;
-        this.outPath = outPath;
+        this.outPath = out+"/"+fileName;
 
-        File artifactFile = new File(tempPath);
-        LOG.info(artifactFile.getPath());
-        LOG.info(outPath+"/"+fileName);
+    }
 
-        artifactFile.renameTo(new File(outPath+"/"+fileName));
+    /**
+     * This method moves the temporary file created with the client to the desired output path specified with the commandline argument
+     * @throws IOException
+     */
+    public void move() throws IOException {
+        Path artifactFile = Paths.get(tempPath);
+        Files.setPosixFilePermissions(artifactFile, java.nio.file.attribute.PosixFilePermissions.fromString("rw-rw-rw-"));
 
+        Path movedFile = Paths.get(outPath);
+        LOG.info("FILE MOVED: the downloaded file is now moved to the desired path");
+
+
+        Files.move(artifactFile,movedFile);
+        Files.setPosixFilePermissions(movedFile, java.nio.file.attribute.PosixFilePermissions.fromString("rw-rw-rw-"));
     }
 
     public String getTempPath() {
