@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
 
 /**
  * This Class is responsible for downloading the changed files from the repository to a temp location in order to make it available for the class FileSystemHandler
@@ -20,7 +19,7 @@ public class Client {
     private String url;
     private String fileName;
     private String fileFormat;
-    private String filePath;
+    private String tmpFileName;
 
     private static final Logger LOG = LogManager.getLogger(Client.class);
 
@@ -37,16 +36,11 @@ public class Client {
             ReadableByteChannel rbc = Channels.newChannel(website.openStream());
 
             File tempFile = File.createTempFile(fileName,fileFormat);
-            tempFile.setReadable(true);
-            tempFile.setWritable(true);
 
-            filePath = tempFile.getAbsolutePath();
-            //filePath = tempFile.getCanonicalPath();
+            tmpFileName = tempFile.getName();
+            //tmpFileName = tempFile.getCanonicalPath();
 
-            //Files.setPosixFilePermissions(tempFile.toPath(), java.nio.file.attribute.PosixFilePermissions.fromString("rw-rw-rw-")); --> is set in FileSystemHandler
-            LOG.info(tempFile.isDirectory());
-
-            FileOutputStream fos = new FileOutputStream(filePath); //path to where the file is written
+            FileOutputStream fos = new FileOutputStream(tmpFileName); //path to where the file is written
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE); //write
 
             LOG.info("DOWNLOAD: the file is downloaded");
@@ -79,8 +73,8 @@ public class Client {
 
     }
 
-    public String getFilePath() {
-        return filePath;
+    public String getTmpFileName() {
+        return tmpFileName;
     }
 
     public String getFileName() {

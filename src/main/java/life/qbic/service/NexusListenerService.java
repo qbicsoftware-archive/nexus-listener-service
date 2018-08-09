@@ -132,10 +132,10 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
                         String[] name = url.split("/");
 
                         if(isPortlet){
-                            fsh = new FileSystemHandler(client.getFilePath(),outPortlet,name[name.length -1]);
+                            fsh = new FileSystemHandler(client.getTmpFileName(),outPortlet,name[name.length -1]);
 
                         }else{
-                            fsh = new FileSystemHandler(client.getFilePath(),outArtifacts,name[name.length -1]);
+                            fsh = new FileSystemHandler(client.getTmpFileName(),outArtifacts,name[name.length -1]);
                         }
                         //move the temp file to the desired path
                         fsh.move();

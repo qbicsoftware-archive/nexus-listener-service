@@ -13,7 +13,7 @@ import static junit.framework.TestCase.*;
 public class FileSystemHandlerTest {
 
     FileSystemHandler fsh;
-    //private static final Logger LOG = LogManager.getLogger(FileSystemHandlerTest.class);
+    private static final Logger LOG = LogManager.getLogger(FileSystemHandlerTest.class);
 
     @Before
     public void setUp(){
@@ -22,7 +22,9 @@ public class FileSystemHandlerTest {
         Client client = new Client("https://github.com/qbicsoftware/nexus-listener-service/blob/development/src/test/resources/vaccine-designer-portlet-1.0.0-20180802.133341-3.war");
         client.downloadFromURL();
 
-        fsh = new FileSystemHandler(client.getFilePath(),"/home/jefo",client.getFileName()+client.getFileFormat());
+     //   fsh = new FileSystemHandler(client.getTmpFileName(),prop.getProperty("user.home"),client.getFileName()+client.getFileFormat());
+        fsh = new FileSystemHandler(System.getProperty("java.io.tmpdir")+"/"+client.getTmpFileName(), System.getProperty("user.home"),client.getFileName()+client.getFileFormat());
+
 
     }
 
@@ -30,6 +32,7 @@ public class FileSystemHandlerTest {
     public void testFileMoving() throws IOException {
         File fileOld =  new File(fsh.getTempPath());
         Boolean fileExists = fileOld.exists();
+        //LOG.info(fsh.getTempPath()+" "+fsh.getOutPath());
 
         assertTrue(fileExists);
         fsh.move();

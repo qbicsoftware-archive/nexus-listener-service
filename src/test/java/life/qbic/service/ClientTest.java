@@ -29,7 +29,7 @@ public class ClientTest {
     @Test
     public void testDownloadFromUrl(){
         client.downloadFromURL();
-        File file =  new File(client.getFilePath());
+        File file =  new File(client.getTmpFileName());
         Boolean fileExists = file.exists();
 
         assertTrue(fileExists);
