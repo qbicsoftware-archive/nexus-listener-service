@@ -37,7 +37,7 @@ public class FileSystemHandler {
         LOG.info(test.exists());
         Path movedFile = Paths.get(outPath);
 
-        Files.move(artifactFile,movedFile);
+     //   Files.move(artifactFile,movedFile);
         LOG.info("FILE MOVED: the downloaded file is now moved to the desired path");
 
         Files.setPosixFilePermissions(movedFile, java.nio.file.attribute.PosixFilePermissions.fromString("rw-rw-rw-"));
