@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
 
 /**
  * This Class is responsible for downloading the changed files from the repository to a temp location in order to make it available for the class FileSystemHandler
@@ -37,6 +38,7 @@ public class Client {
 
             File tempFile = File.createTempFile(fileName,fileFormat);
             filePath = tempFile.getAbsolutePath();
+            Files.setPosixFilePermissions(tempFile.toPath(), java.nio.file.attribute.PosixFilePermissions.fromString("rw-rw-rw-"));
 
             LOG.info(tempFile.exists()+" exists?");
 
