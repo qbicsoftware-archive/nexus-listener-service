@@ -38,6 +38,8 @@ public class Client {
             File tempFile = File.createTempFile(fileName,fileFormat);
             filePath = tempFile.getAbsolutePath();
 
+            LOG.info(tempFile.exists()+" exists?");
+
             FileOutputStream fos = new FileOutputStream(filePath); //path to where the file is written
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE); //write
 

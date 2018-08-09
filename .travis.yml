@@ -1,73 +1,49 @@
-# Build script for Travis CI
-#
-
-# use fast-boot container-based hosts
-sudo: false 
+sudo: false
 dist: trusty
-
-# no need to check for oracle's java
 language: java
 jdk: openjdk8
-
-# speed up builds by caching maven local repository
 cache:
   directories:
-  - "$HOME/.m2/repository"
-
-# as agreed in our SOP
+  - $HOME/.m2/repository
 branches:
   only:
   - master
   - development
-
-# added to make logs look cleaner, crisper, certified fresh
-before_install: unset _JAVA_OPTIONS 
-
-# speed up builds by telling Travis that we don't need any special "installation"
+before_install: unset _JAVA_OPTIONS
 install: true
-
-# check if we need to add a license file for Vaadin charts
-before_script: if [ "$VAADIN_CHARTS_LICENSE_CODE" != "" ]; then
-                  echo "$VAADIN_CHARTS_LICENSE_CODE" > ~/.vaadin.charts.developer.license;
-               fi;
-
-# as agreed in our SOP, build everything (don't deploy, just try to 'mvn install' locally, which covers all phases)
-script: mvn --quiet --activate-profiles !development-build,!release-build --settings .travis.settings.xml clean cobertura:cobertura install
-# upload code coverage report, generate maven site (javadocs, documentation, static code analysis, etc.)
-after_success: 
+before_script: if [ "$VAADIN_CHARTS_LICENSE_CODE" != "" ]; then echo "$VAADIN_CHARTS_LICENSE_CODE"
+  > ~/.vaadin.charts.developer.license; fi;
+script: mvn --quiet --activate-profiles !development-build,!release-build --settings
+  .travis.settings.xml clean cobertura:cobertura install
+after_success:
 - bash <(curl -s https://codecov.io/bash)
-- mvn --quiet --activate-profiles !development-build,!release-build --settings .travis.settings.xml site
-
-# upload to maven
+- mvn --quiet --activate-profiles !development-build,!release-build --settings .travis.settings.xml
+  site
 deploy:
-  # as agreed in our SOP, builds on development branch will deploy to our maven repository after validating
-  # the artifact has a proper SNAPSHOT version
-  # artifact will be installed in our testing instance if it is a .war file
 - skip_cleanup: true
   provider: script
-  script: mvn --quiet --activate-profiles development-build,!release-build --settings .travis.settings.xml deploy
+  script: mvn --quiet --activate-profiles development-build,!release-build --settings
+    .travis.settings.xml deploy
   on:
     branch: development
     condition: '"$TRAVIS_EVENT_TYPE" = "push"'
-  # as agreed in our SOP, tagging a commit on the master branch will upload to our maven repository
-  # after validating the artifact has a proper release version
-  # artifact will be installed in our testing instance if it is a .war file
 - skip_cleanup: true
   provider: script
-  script: mvn --quiet --activate-profiles !development-build,release-build --settings .travis.settings.xml deploy
+  script: mvn --quiet --activate-profiles !development-build,release-build --settings
+    .travis.settings.xml deploy
   on:
     branch: master
     condition: '"$TRAVIS_EVENT_TYPE" = "push"'
-
-# change according to your needs, but we recommend to deactivate email notifications
-# for now, we configured Travis to send a notification to the #travis-ci channel 
 notifications:
   email:
     on_success: never
     on_failure: never
-  slack: 
+  slack:
     on_success: never
     on_failure: always
-    # edit the following section if you want to get slack notifications
     rooms:
-      - secure: "***"
+    - secure: '***'
+env:
+  global:
+  - secure: pLGPj3IfSpfxYKvTr+j8/gjDsqsdrE3wkrJrt+eF3VP3eeaTYU40Gz9He6bI01hyBxdZDm0rVRW7eI8myG3olxQUMIDyhP3r1qX1GE/IdpL8fiLiCHKY5FukdTQiIF/zZem5HrWTY7cqjgzoBqSpI976DdWJCoNv+bpn+ZBCFX+Fj7Q2+vbkzHn3uoSRx/8kZwN3hZAWVpAWiTf/yTs48Y7H4OwyiUPjZn6eTYCYwcXB/N/4TotavY3w6L4ULqFLReJpUz+elyXEhz7O2YpJwIibRAoj5BYGKVeKK53+yBwZmLP1NkbXS3tgvIgBmAeIIn05Jth+bmsQHeeamm6VWlTx9NnF8b78vTB2xJ6voNVci1NbrGcCu1lC29eD6/T2RrGcr+IHBclwiRCsSz+G+ee0sn1FD30HnQG2lp3Llbj4eygAvSGDKGSTCcSbh+L0HuGApfHct+jBTYKCFRqddZFe4ury4qLY15mLqTDNAR2BEQobTeVQjlIGRfB5o8GPTeThRrZRpjWhqJXDAHo4ClqDRCQMDjHMumNfmd6jk+Rfvm4HF86fK3t4HFZ3EYQPpB7XiFt0cmcLggZ9fY1AmKLoCJm+wJRONkX3G8cw1akdYZMvXrDGbraV5HX06P4JSe25x4BHHf3y/520NTcQJgAZpe3/efGH0eMpxhoDihQ=
+  - secure: iUjXK9Yy/8K+1IWqpm76UdCfPy1ZCXfHNAxw5j+8kP+Ddk5FEaen2hn1lTOF1ltgTVYB+8Y1z3Ezfpz7qLw1cf2i6ToTIqkIKUqFlwoMYcghHjB0DtETdfxXsSCDU7QXeOQ4hAMmlHwUy/xeY9v6fUmULeGjxyOEUnodvfi+aV84uUI9d7dvP92ptkkRS1sriLYHCCLz+SowFuJdEuX124XQ14igp3JLrSIN4KRRmW4GdfAiJrTezDeY78MWofs7+d2yG6AKdPWHOPjpeIUpSQN3sfN/75sNB98/Hnyw9qv+Ham9dXcq1OJnmNaBkEtXGEdeyBnZocd/mybdV+UhWU+iuzdKUiBD0xdbZGWEuoiUOqqUcOBsonctd91I12M9qTQghL/OC+A2kKOtJ+2uRvNFXn9TDxfwOGEQCCx7oLCCbp0aEVH7ZxjlDmatlVgslrbGInUjUGCjSgAQqmYB7afuJjpgDz5R7TNKaIOSi1dr0RrfglTx4o0fpYMKsjAimPpnr6A1Ix1MLRRFyL3DzLanhRak9WCqTWd1vCNKIfaLdoimUADrJbOIaWR2r5tILUFO1T+eMNMNp29ArEcJsFq3a8HZaGnNyTdl2P6R/SxOml4Bv7G0M+6934wkLAOBDmrYm70WcWudZO9S70Pz5PaxG77oR6vTXFBFyL+9OlM=

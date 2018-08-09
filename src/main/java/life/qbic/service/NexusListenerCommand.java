@@ -27,7 +27,7 @@ public class NexusListenerCommand extends AbstractCommand {
 		@Option(names={"-u", "--url"}, description="Base repository URL.", required=true)
 	    public String url;
 		
-		@Option(names={"-t", "--type"}, description="List of type of artifacts to deploy.", required=true)
+		@Option(names={"-t", "--type"}, description="List of types of artifacts to deploy.", required=true)
 		String firstArtifact;
 	    @CommandLine.Parameters
 		List<String> artifactType;
