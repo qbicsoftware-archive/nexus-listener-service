@@ -37,8 +37,12 @@ public class Client {
             ReadableByteChannel rbc = Channels.newChannel(website.openStream());
 
             File tempFile = File.createTempFile(fileName,fileFormat);
-            filePath = tempFile.getAbsolutePath();
-          //  Files.setPosixFilePermissions(tempFile.toPath(), java.nio.file.attribute.PosixFilePermissions.fromString("rw-rw-rw-")); --> is set in FileSystemHandler
+            tempFile.setReadable(true);
+            //filePath = tempFile.getAbsolutePath();
+            filePath = tempFile.getCanonicalPath();
+
+            //  Files.setPosixFilePermissions(tempFile.toPath(), java.nio.file.attribute.PosixFilePermissions.fromString("rw-rw-rw-")); --> is set in FileSystemHandler
+            LOG.info(tempFile.getCanonicalPath());
 
             FileOutputStream fos = new FileOutputStream(filePath); //path to where the file is written
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE); //write
