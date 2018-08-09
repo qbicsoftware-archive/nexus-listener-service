@@ -3,6 +3,7 @@ package life.qbic.service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,11 +33,13 @@ public class FileSystemHandler {
         Path artifactFile = Paths.get(tempPath);
         Files.setPosixFilePermissions(artifactFile, java.nio.file.attribute.PosixFilePermissions.fromString("rw-rw-rw-"));
 
+        File test = new File(tempPath);
+        LOG.info(test.exists());
         Path movedFile = Paths.get(outPath);
-        LOG.info("FILE MOVED: the downloaded file is now moved to the desired path");
-
 
         Files.move(artifactFile,movedFile);
+        LOG.info("FILE MOVED: the downloaded file is now moved to the desired path");
+
         Files.setPosixFilePermissions(movedFile, java.nio.file.attribute.PosixFilePermissions.fromString("rw-rw-rw-"));
     }
 
