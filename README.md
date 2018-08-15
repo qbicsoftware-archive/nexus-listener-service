@@ -33,5 +33,5 @@ In the commandline once needs to specify:
 
 		**--non-portletFolder:** Folder on which non-portlets are copied
 
-e.g.: java nexus-listener-service.jar -p 8080 -k 123456789 -u https://qbic-repo.am10.uni-tuebingen.de -t portlet --portletFolder /home/jefo --non-portletFolder /home/jefo
+e.g.: java nexus-listener-service.jar -p 8080 -k 123456789 -u https://qbic-repo.am10.uni-tuebingen.de -t portlet --portletFolder /home/user --non-portletFolder /home/user
 
