@@ -1,14 +1,11 @@
 package life.qbic.service;
 
-import org.apache.commons.codec.binary.Hex;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 
+import java.util.ArrayList;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.*;
@@ -30,7 +27,7 @@ public class NexusListenerServiceTest  {
     NexusListenerCommand nlc;
 
     @Before
-    public void setUp() throws Exception{
+    public void setUp(){
         nlc = new NexusListenerCommand();
 
         nlc.artifactType = new ArrayList<>();
@@ -41,6 +38,7 @@ public class NexusListenerServiceTest  {
         nlc.outPortlet = "";
 
         nls = new NexusListenerService(nlc);
+
 
     }
     @Test
@@ -54,7 +52,7 @@ public class NexusListenerServiceTest  {
     public void testBuildURL() throws Exception{
 
         String payload = "{\"timestamp\":\"2018-08-02T12:53:31.922+0000\",\"nodeId\":\"E72CE436-C789E185-BFF8B757-A30A899F-27751D2E\",\"initiator\":\"deployer/52.54.40.118\"," +
-                "\"repositoryName\":\"maven-snapshots\",\"action\":\"CREATED\",\"component\":{\"id\":\"4b378653591c67225df912359675c3c1\",\"format\":\"maven2\"," +
+                "\"repositoryName\":\"maven-snapshots\",\"action\":\"UPDATED\",\"component\":{\"id\":\"4b378653591c67225df912359675c3c1\",\"format\":\"maven2\"," +
                 "\"name\":\"vaccine-designer-portlet\",\"group\":\"life.qbic\",\"version\":\"1.0.0-20180802.125333-1\"}}";
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(payload);

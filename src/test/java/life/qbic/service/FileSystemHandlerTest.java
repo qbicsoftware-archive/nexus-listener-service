@@ -29,7 +29,7 @@ public class FileSystemHandlerTest {
     }
 
     @Test
-    public void testFileMoving() throws IOException {
+    public void testFileMoving(){
         File fileOld =  new File(fsh.getTempPath());
         Boolean fileExists = fileOld.exists();
         //LOG.info(fsh.getTempPath()+" "+fsh.getOutPath());
@@ -38,6 +38,7 @@ public class FileSystemHandlerTest {
         fsh.move();
 
         File fileNew = new File(fsh.getOutPath());
+        LOG.info(fileNew.getAbsolutePath());
 
         assertFalse(fileOld.exists());
         assertTrue(fileNew.exists());

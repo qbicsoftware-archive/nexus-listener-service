@@ -66,7 +66,7 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
         baseRepo = command.url;
         secretKey = command.key;
         artifacts = command.artifactType;
-        artifacts.add(command.firstArtifact);
+      //  artifacts.add(command.firstArtifact);
         outArtifacts = command.outNonPortlet;
         outPortlet = command.outPortlet;
 
@@ -111,12 +111,11 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
 
                 // TODO: can we get "postData" from HTTPSession.POST_DATA ???
                 final String payload = files.get("postData");
-                // payload can be turned into a JSON object
-
 
                 //verify data: valid repository sends Post request?
                 if (hashKey(secretKey, payload).equals(headers.get("x-nexus-webhook-signature"))) {
 
+                    // payload can be turned into a JSON object
                     JSONObject jsonBody = parseJSON(payload);
 
                     if (artifactRelevant(jsonBody)) {
@@ -187,9 +186,9 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
             hmac = Hex.encodeHexString(digest);
 
         } catch (NoSuchAlgorithmException nsae) {
-            LOG.error("NoSuchAlgorithmException " + nsae.getMessage());
+            LOG.error("ERROR WHILE HASHING KEY: NoSuchAlgorithmException " + nsae.getMessage());
         } catch (InvalidKeyException rk) {
-            LOG.error("InvalidKeyException: " + rk.getMessage());
+            LOG.error("ERROR WHILE HASHING KEY: InvalidKeyException " + rk.getMessage());
         }
 
         return hmac;
@@ -205,19 +204,25 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
     }
 
     /**
-     * This Method tests if the post request informs the user about an artifact that he has defined as relevant with the commandline option -t
+     * This Method tests if the post request informs the user about an artifact that he has defined as relevant with a commandline parameter
+     * furthermore this method checks if the artifact is UPDATED, only then the artifact should be deployed
      *
      * @param jsonBody
      * @return
      * @throws ParseException
      */
-    private boolean artifactRelevant(JSONObject jsonBody) throws ParseException {
+    public boolean artifactRelevant(JSONObject jsonBody) throws ParseException {
 
         //test if artifact type is relevant, is it specified with the commandline?
         String name = (parseJSON(jsonBody.get("component").toString()).get("name")).toString();
         String[] splitName = name.split("-");
 
-        return artifacts.contains(splitName[splitName.length - 1]);
+        //furthermore test if artifact is UPDATED
+        String action = jsonBody.get("action").toString();
+
+        boolean relevant = artifacts.contains(splitName[splitName.length - 1]) && action.equals("UPDATED");
+
+        return relevant;
     }
 
     /**
