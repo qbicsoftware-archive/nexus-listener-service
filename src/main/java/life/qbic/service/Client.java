@@ -46,7 +46,7 @@ public class Client {
             LOG.info("DOWNLOAD: the file is downloaded");
 
         } catch (IOException e) {
-            LOG.error("ERROR WHILE DOWNLOADING FILE: IOException "+e);
+            LOG.error("ERROR WHILE DOWNLOADING FILE: IOException ", e);
             throw new ApplicationException("ERROR WHILE DOWNLOADING FILE: IOException");
 
         }
