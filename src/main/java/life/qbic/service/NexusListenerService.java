@@ -10,6 +10,7 @@ import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 
 import static fi.iki.elonen.NanoHTTPD.MIME_PLAINTEXT;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.commons.codec.binary.Hex;
@@ -46,8 +47,6 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
     private String outPortlet = "";
     private String outArtifacts = "";
 
-    private boolean isPortlet = false;
-
 
     /**
      * Constructor.
@@ -66,7 +65,6 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
         baseRepo = command.url;
         secretKey = command.key;
         artifacts = command.artifactType;
-      //  artifacts.add(command.firstArtifact);
         outArtifacts = command.outNonPortlet;
         outPortlet = command.outPortlet;
 
@@ -97,7 +95,7 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
      */
     public Response processPOST(IHTTPSession session) {
         LOG.info("processing POST request");
-        Map<String, String> files = new HashMap<String, String>();
+        Map<String, String> files = new HashMap<>();
         Map<String, String> headers;
         NanoHTTPD.Method method = session.getMethod();
 
@@ -112,15 +110,19 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
                 // TODO: can we get "postData" from HTTPSession.POST_DATA ???
                 final String payload = files.get("postData");
 
-                //verify data: valid repository sends Post request?
+                //verify data: valid repository sends Post request (e.g nexus)
                 if (hashKey(secretKey, payload).equals(headers.get("x-nexus-webhook-signature"))) {
 
                     // payload can be turned into a JSON object
                     JSONObject jsonBody = parseJSON(payload);
 
-                    if (artifactRelevant(jsonBody)) {
+                    String artifactName = artifactNameRelevant(jsonBody);
 
-                        url = buildURL(jsonBody);
+                    if (artifacts.contains(artifactName) && actionTypRelevant(jsonBody)) {
+
+                        boolean isPortlet = artifactName.equals("portlet");
+
+                        url = buildURL(jsonBody,isPortlet);
 
                         //download the file temporarily
                         Client client = new Client(url);
@@ -146,7 +148,7 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
 
                     return NanoHTTPD.newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, "Ok"); // Or postParameter.
                 } else {
-                    LOG.error("UNVERIFIED DATA: the payload of the POST request cannot be validated (wrong payload or nexus-webhook-signature");
+                    LOG.error("UNVERIFIED DATA: the payload of the POST request cannot be validated (wrong payload or nexus-webhook-signature)");
                     return NanoHTTPD.newFixedLengthResponse(Response.Status.INTERNAL_ERROR,MIME_PLAINTEXT,"OK");
                 }
 
@@ -194,6 +196,7 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
         return hmac;
     }
 
+
     private JSONObject parseJSON(String toJSON) throws ParseException {
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(toJSON);
@@ -203,27 +206,33 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
         return json;
     }
 
+
     /**
-     * This Method tests if the post request informs the user about an artifact that he has defined as relevant with a commandline parameter
-     * furthermore this method checks if the artifact is UPDATED, only then the artifact should be deployed
-     *
+     * Returns the type of the artifact from the artifact name
      * @param jsonBody
      * @return
-     * @throws ParseException
      */
-    public boolean artifactRelevant(JSONObject jsonBody) throws ParseException {
+    public String artifactNameRelevant(JSONObject jsonBody) throws ParseException{
 
-        //test if artifact type is relevant, is it specified with the commandline?
-        String name = (parseJSON(jsonBody.get("component").toString()).get("name")).toString();
-        String[] splitName = name.split("-");
+        String componentName = (parseJSON(jsonBody.get("component").toString()).get("name")).toString();
 
-        //furthermore test if artifact is UPDATED
+        if(!componentName.contains("-")){
+            LOG.info("INVALID NAME: artifact name does not follow naming conventions");
+            return componentName;
+        }
+
+        String[] splitName = componentName.split("-");
+        String artifact = splitName[splitName.length - 1];
+
+        return artifact;
+    }
+
+    public boolean actionTypRelevant(JSONObject jsonBody){
         String action = jsonBody.get("action").toString();
 
-        boolean relevant = artifacts.contains(splitName[splitName.length - 1]) && action.equals("UPDATED");
-
-        return relevant;
+        return action.equals("UPDATED");
     }
+
 
     /**
      * Method that builds the URL of the updated repository
@@ -231,7 +240,7 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
      * @param body
      * @return
      */
-    public String buildURL(JSONObject body) throws ParseException {
+    public String buildURL(JSONObject body, boolean isPortlet) throws ParseException {
 
 
         //access the POST request's parameters set empty String as Default in order to better process errors:
@@ -269,7 +278,7 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
         }
 
         //if payload was fine build URL:
-        String asset = buildAsset(name, assetVersion);
+        String asset = buildAsset(name, assetVersion, isPortlet);
 
         //process version, if snapshot process version for url (but not for asset specification!
         if (repo.contains("snapshot")) {
@@ -290,13 +299,12 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
      * @param
      * @return
      */
-    private String buildAsset(String name, String version) {
+    private String buildAsset(String name, String version, boolean isPortlet) {
 
-        String format = "";
+        String format;
 
-        if (name.contains("portlet")) {
+        if (isPortlet) {
             format = ".war";
-            isPortlet = true;
         } else {
             format = ".jar";
         }
@@ -315,13 +323,6 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
 
     //###############GETTER-Methods ####################################################################################
 
-    public String getUrl() {
-        return url;
-    }
-
-    public List<String> getArtifacts() {
-        return artifacts;
-    }
 
     public NanoHTTPD getHttpServer() {
         return httpServer;

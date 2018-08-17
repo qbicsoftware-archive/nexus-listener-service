@@ -33,8 +33,6 @@ public class NexusListenerCommand extends AbstractCommand {
 		@Option(names={"--non-portletFolder"}, description="Folder on which non-portlets are copied.", required=true)
 	    public String outNonPortlet;
 
-	//	@Option(names={"-t", "--type"}, description="List of types of artifacts to deploy.", required=true)
-	//	String firstArtifact;
 	    @CommandLine.Parameters(arity = "1..*",description = "List of types of artifacts to deploy (e.g portlet)")
 	    List<String> artifactType;
 

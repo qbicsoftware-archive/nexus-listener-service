@@ -38,12 +38,12 @@ public class Client {
             File tempFile = File.createTempFile(fileName,fileFormat);
 
             tmpFileName = tempFile.getName();
-            //tmpFileName = tempFile.getCanonicalPath();
 
             FileOutputStream fos = new FileOutputStream(tmpFileName); //path to where the file is written
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE); //write
 
             LOG.info("DOWNLOAD: the file is downloaded");
+            fos.close();
 
         } catch (IOException e) {
             LOG.error("ERROR WHILE DOWNLOADING FILE: IOException "+e);
