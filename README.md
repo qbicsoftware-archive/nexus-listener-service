@@ -18,15 +18,15 @@ If the artifact update is relevant (relevant artifact types are provided via com
 This is offered as a `systemd` service. We include a service file (see `src/main/systemd/nexus-listener.service`).
 
 ## Usage
-In the command line one needs to specify the following parameters:
+One needs to specify the following parameters via command line:
 
-	- `-p` or `--port`: Port on which this service will listen to requests.
-	- `-u` or `--url`: Base repository URL for the Nexus repository
-    - `-f` or `--portlet-folder`: Folder on which portlets are copied
-    - `-o` or `--non-portlet-folder`: Folder on which non-portlets are copied
-    - `-k` or `--key`:  Secrete key which is used to create HMAC payload
+  + `-p` or `--port`: Port on which this service will listen to requests.
+  + `-u` or `--url`: Base repository URL for the Nexus repository
+  + `-f` or `--portlet-folder`: Folder on which portlets are copied
+  + `-o` or `--non-portlet-folder`: Folder on which non-portlets are copied
+  + `-k` or `--key`:  Secrete key which is used to create HMAC payload
 
-Desired artifact types (e.g., `portlet`, `service`) are provided as positional parameters. 
+Desired artifact types (e.g., `portlet`, `service`) are provided as positional parameters, e.g., `java listener.jar -p 4321 -k 1234 -u https://maven.re.po -p deploy -o /home/user portlet service`
 
 Here is the output of executing this tool with `--help` as parameter:
 
@@ -47,4 +47,3 @@ testing-portal with the new file(s).
   -v, --version           Prints version and exits.
 ```
 
-e.g.: `java nexus-listener-service.jar -p 8080 -k 1234 -u https://maven.re.po -p deploy -o /home/user portlet service`
