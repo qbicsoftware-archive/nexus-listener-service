@@ -33,6 +33,7 @@ public class Client {
 
         try{
             final URL website = new URL(url);
+            LOG.info("Downloading from {}", url);
             final ReadableByteChannel rbc = Channels.newChannel(website.openStream());
 
             final File tempFile = File.createTempFile(fileName,fileFormat);
@@ -41,7 +42,7 @@ public class Client {
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE); //write
             tmpFilePath = tempFile.getAbsolutePath();
 
-            LOG.info("DOWNLOAD: the file is downloaded");
+            LOG.info("DOWNLOAD: the file was downloaded to {}", tmpFilePath);
             fos.close();
 
         } catch (IOException e) {

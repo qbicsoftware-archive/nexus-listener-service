@@ -39,6 +39,7 @@ public class FileSystemHandler {
 
         Path movedFile = Paths.get(outPath);
 
+        LOG.info("Moving file from {} to {}", artifactFile, movedFile);
         Files.move(artifactFile,movedFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         Files.setPosixFilePermissions(movedFile, java.nio.file.attribute.PosixFilePermissions.fromString("rw-rw-rw-"));
 
