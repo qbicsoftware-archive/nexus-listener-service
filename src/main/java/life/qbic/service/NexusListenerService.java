@@ -10,7 +10,6 @@ import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 
 import static fi.iki.elonen.NanoHTTPD.MIME_PLAINTEXT;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.commons.codec.binary.Hex;
@@ -133,10 +132,10 @@ public class NexusListenerService extends QBiCTool<NexusListenerCommand> {
                         String[] name = url.split("/");
 
                         if(isPortlet){
-                            fsh = new FileSystemHandler(client.getTmpFileName(),outPortlet,name[name.length -1]);
+                            fsh = new FileSystemHandler(client.getTmpFilePath(),outPortlet,name[name.length -1]);
 
                         }else{
-                            fsh = new FileSystemHandler(client.getTmpFileName(),outArtifacts,name[name.length -1]);
+                            fsh = new FileSystemHandler(client.getTmpFilePath(),outArtifacts,name[name.length -1]);
                         }
                         //move the temp file to the desired path
                         fsh.move();

@@ -19,7 +19,7 @@ public class Client {
     private String url;
     private String fileName;
     private String fileFormat;
-    private String tmpFileName;
+    private String tmpFilePath;
 
     private static final Logger LOG = LogManager.getLogger(Client.class);
 
@@ -32,17 +32,17 @@ public class Client {
     public void downloadFromURL(){
 
         try{
-            URL website = new URL(url);
-            ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+            final URL website = new URL(url);
+            LOG.info("Downloading from {}", url);
+            final ReadableByteChannel rbc = Channels.newChannel(website.openStream());
 
-            File tempFile = File.createTempFile(fileName,fileFormat);
+            final File tempFile = File.createTempFile(fileName,fileFormat);
 
-            tmpFileName = tempFile.getName();
-
-            FileOutputStream fos = new FileOutputStream(tmpFileName); //path to where the file is written
+            final FileOutputStream fos = new FileOutputStream(tempFile); //path to where the file is written
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE); //write
+            tmpFilePath = tempFile.getAbsolutePath();
 
-            LOG.info("DOWNLOAD: the file is downloaded");
+            LOG.info("DOWNLOAD: the file was downloaded to {}", tmpFilePath);
             fos.close();
 
         } catch (IOException e) {
@@ -73,8 +73,8 @@ public class Client {
 
     }
 
-    public String getTmpFileName() {
-        return tmpFileName;
+    public String getTmpFilePath() {
+        return tmpFilePath;
     }
 
     public String getFileName() {
