@@ -1,0 +1,662 @@
+<?xml version="1.0"?>
+<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
+
+<coverage line-rate="0.6847826086956522" branch-rate="0.5" lines-covered="126" lines-valid="184" branches-covered="16" branches-valid="32" complexity="2.608695652173913" version="2.1.1" timestamp="1554702964497">
+	<sources>
+		<source>--source</source>
+		<source>/home/travis/build/qbicsoftware/nexus-listener-service/target/generated-sources/annotations</source>
+		<source>/home/travis/build/qbicsoftware/nexus-listener-service/src/main/java</source>
+	</sources>
+	<packages>
+		<package name="life.qbic.service" line-rate="0.6847826086956522" branch-rate="0.5" complexity="2.608695652173913">
+			<classes>
+				<class name="life.qbic.service.Client" filename="life/qbic/service/Client.java" line-rate="1.0" branch-rate="0.75" complexity="1.6666666666666667">
+					<methods>
+						<method name="&lt;clinit&gt;" signature="()V" line-rate="1.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="24" hits="1" branch="false"/>
+							</lines>
+						</method>
+						<method name="&lt;init&gt;" signature="(Ljava/lang/String;)V" line-rate="1.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="27" hits="5" branch="false"/>
+								<line number="28" hits="5" branch="false"/>
+								<line number="29" hits="5" branch="false"/>
+								<line number="30" hits="5" branch="false"/>
+							</lines>
+						</method>
+						<method name="downloadFromURL" signature="()V" line-rate="1.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="35" hits="4" branch="false"/>
+								<line number="36" hits="4" branch="false"/>
+								<line number="37" hits="4" branch="false"/>
+								<line number="39" hits="3" branch="false"/>
+								<line number="41" hits="3" branch="false"/>
+								<line number="42" hits="3" branch="false"/>
+								<line number="43" hits="3" branch="false"/>
+								<line number="45" hits="3" branch="false"/>
+								<line number="46" hits="3" branch="false"/>
+								<line number="48" hits="1" branch="false"/>
+								<line number="49" hits="1" branch="false"/>
+								<line number="50" hits="1" branch="false"/>
+								<line number="52" hits="3" branch="false"/>
+								<line number="54" hits="3" branch="false"/>
+							</lines>
+						</method>
+						<method name="filterName" signature="(Ljava/lang/String;)V" line-rate="1.0" branch-rate="0.75" complexity="0">
+							<lines>
+								<line number="59" hits="5" branch="false"/>
+								<line number="60" hits="5" branch="false"/>
+								<line number="61" hits="5" branch="false"/>
+								<line number="63" hits="20" branch="true" condition-coverage="50% (1/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="50%"/>
+									</conditions>
+								</line>
+								<line number="65" hits="20" branch="true" condition-coverage="100% (2/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="100%"/>
+									</conditions>
+								</line>
+								<line number="66" hits="5" branch="false"/>
+								<line number="67" hits="5" branch="false"/>
+								<line number="71" hits="5" branch="false"/>
+								<line number="72" hits="5" branch="false"/>
+								<line number="74" hits="5" branch="false"/>
+							</lines>
+						</method>
+						<method name="getFileFormat" signature="()Ljava/lang/String;" line-rate="1.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="85" hits="1" branch="false"/>
+							</lines>
+						</method>
+						<method name="getFileName" signature="()Ljava/lang/String;" line-rate="1.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="81" hits="1" branch="false"/>
+							</lines>
+						</method>
+						<method name="getTmpFilePath" signature="()Ljava/lang/String;" line-rate="1.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="77" hits="3" branch="false"/>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="24" hits="1" branch="false"/>
+						<line number="27" hits="5" branch="false"/>
+						<line number="28" hits="5" branch="false"/>
+						<line number="29" hits="5" branch="false"/>
+						<line number="30" hits="5" branch="false"/>
+						<line number="35" hits="4" branch="false"/>
+						<line number="36" hits="4" branch="false"/>
+						<line number="37" hits="4" branch="false"/>
+						<line number="39" hits="3" branch="false"/>
+						<line number="41" hits="3" branch="false"/>
+						<line number="42" hits="3" branch="false"/>
+						<line number="43" hits="3" branch="false"/>
+						<line number="45" hits="3" branch="false"/>
+						<line number="46" hits="3" branch="false"/>
+						<line number="48" hits="1" branch="false"/>
+						<line number="49" hits="1" branch="false"/>
+						<line number="50" hits="1" branch="false"/>
+						<line number="52" hits="3" branch="false"/>
+						<line number="54" hits="3" branch="false"/>
+						<line number="59" hits="5" branch="false"/>
+						<line number="60" hits="5" branch="false"/>
+						<line number="61" hits="5" branch="false"/>
+						<line number="63" hits="20" branch="true" condition-coverage="50% (1/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="50%"/>
+							</conditions>
+						</line>
+						<line number="65" hits="20" branch="true" condition-coverage="100% (2/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="100%"/>
+							</conditions>
+						</line>
+						<line number="66" hits="5" branch="false"/>
+						<line number="67" hits="5" branch="false"/>
+						<line number="71" hits="5" branch="false"/>
+						<line number="72" hits="5" branch="false"/>
+						<line number="74" hits="5" branch="false"/>
+						<line number="77" hits="3" branch="false"/>
+						<line number="81" hits="1" branch="false"/>
+						<line number="85" hits="1" branch="false"/>
+					</lines>
+				</class>
+				<class name="life.qbic.service.FileSystemHandler" filename="life/qbic/service/FileSystemHandler.java" line-rate="0.85" branch-rate="1.0" complexity="1.25">
+					<methods>
+						<method name="&lt;clinit&gt;" signature="()V" line-rate="1.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="17" hits="1" branch="false"/>
+							</lines>
+						</method>
+						<method name="&lt;init&gt;" signature="(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V" line-rate="1.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="22" hits="1" branch="false"/>
+								<line number="23" hits="1" branch="false"/>
+								<line number="25" hits="1" branch="false"/>
+								<line number="26" hits="1" branch="false"/>
+								<line number="28" hits="1" branch="false"/>
+							</lines>
+						</method>
+						<method name="getOutPath" signature="()Ljava/lang/String;" line-rate="1.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="62" hits="2" branch="false"/>
+							</lines>
+						</method>
+						<method name="getTempPath" signature="()Ljava/lang/String;" line-rate="1.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="58" hits="1" branch="false"/>
+							</lines>
+						</method>
+						<method name="move" signature="()V" line-rate="0.75" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="37" hits="1" branch="false"/>
+								<line number="38" hits="1" branch="false"/>
+								<line number="40" hits="1" branch="false"/>
+								<line number="42" hits="1" branch="false"/>
+								<line number="43" hits="1" branch="false"/>
+								<line number="44" hits="1" branch="false"/>
+								<line number="46" hits="1" branch="false"/>
+								<line number="48" hits="0" branch="false"/>
+								<line number="50" hits="0" branch="false"/>
+								<line number="52" hits="0" branch="false"/>
+								<line number="53" hits="1" branch="false"/>
+								<line number="54" hits="1" branch="false"/>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="17" hits="1" branch="false"/>
+						<line number="22" hits="1" branch="false"/>
+						<line number="23" hits="1" branch="false"/>
+						<line number="25" hits="1" branch="false"/>
+						<line number="26" hits="1" branch="false"/>
+						<line number="28" hits="1" branch="false"/>
+						<line number="37" hits="1" branch="false"/>
+						<line number="38" hits="1" branch="false"/>
+						<line number="40" hits="1" branch="false"/>
+						<line number="42" hits="1" branch="false"/>
+						<line number="43" hits="1" branch="false"/>
+						<line number="44" hits="1" branch="false"/>
+						<line number="46" hits="1" branch="false"/>
+						<line number="48" hits="0" branch="false"/>
+						<line number="50" hits="0" branch="false"/>
+						<line number="52" hits="0" branch="false"/>
+						<line number="53" hits="1" branch="false"/>
+						<line number="54" hits="1" branch="false"/>
+						<line number="58" hits="1" branch="false"/>
+						<line number="62" hits="2" branch="false"/>
+					</lines>
+				</class>
+				<class name="life.qbic.service.NexusListenerCommand" filename="life/qbic/service/NexusListenerCommand.java" line-rate="1.0" branch-rate="1.0" complexity="0.0">
+					<methods>
+						<method name="&lt;init&gt;" signature="()V" line-rate="1.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="19" hits="12" branch="false"/>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="19" hits="12" branch="false"/>
+					</lines>
+				</class>
+				<class name="life.qbic.service.NexusListenerEntryPoint" filename="life/qbic/service/NexusListenerEntryPoint.java" line-rate="0.0" branch-rate="1.0" complexity="1.0">
+					<methods>
+						<method name="&lt;clinit&gt;" signature="()V" line-rate="0.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="15" hits="0" branch="false"/>
+							</lines>
+						</method>
+						<method name="&lt;init&gt;" signature="()V" line-rate="0.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="13" hits="0" branch="false"/>
+							</lines>
+						</method>
+						<method name="main" signature="([Ljava/lang/String;)V" line-rate="0.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="23" hits="0" branch="false"/>
+								<line number="24" hits="0" branch="false"/>
+								<line number="25" hits="0" branch="false"/>
+								<line number="26" hits="0" branch="false"/>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="13" hits="0" branch="false"/>
+						<line number="15" hits="0" branch="false"/>
+						<line number="23" hits="0" branch="false"/>
+						<line number="24" hits="0" branch="false"/>
+						<line number="25" hits="0" branch="false"/>
+						<line number="26" hits="0" branch="false"/>
+					</lines>
+				</class>
+				<class name="life.qbic.service.NexusListenerService" filename="life/qbic/service/NexusListenerService.java" line-rate="0.6097560975609756" branch-rate="0.4642857142857143" complexity="3.6666666666666665">
+					<methods>
+						<method name="&lt;clinit&gt;" signature="()V" line-rate="1.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="37" hits="1" branch="false"/>
+							</lines>
+						</method>
+						<method name="&lt;init&gt;" signature="(Llife/qbic/service/NexusListenerCommand;)V" line-rate="1.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="42" hits="12" branch="false"/>
+								<line number="43" hits="12" branch="false"/>
+								<line number="44" hits="12" branch="false"/>
+								<line number="45" hits="12" branch="false"/>
+								<line number="46" hits="12" branch="false"/>
+								<line number="47" hits="12" branch="false"/>
+								<line number="56" hits="12" branch="false"/>
+								<line number="57" hits="12" branch="false"/>
+								<line number="58" hits="12" branch="false"/>
+							</lines>
+						</method>
+						<method name="actionTypRelevant" signature="(Lorg/json/simple/JSONObject;)Z" line-rate="1.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="230" hits="1" branch="false"/>
+								<line number="232" hits="1" branch="false"/>
+							</lines>
+						</method>
+						<method name="artifactNameRelevant" signature="(Lorg/json/simple/JSONObject;)Ljava/lang/String;" line-rate="0.7142857142857143" branch-rate="0.5" complexity="0">
+							<lines>
+								<line number="216" hits="1" branch="false"/>
+								<line number="218" hits="1" branch="true" condition-coverage="50% (1/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="50%"/>
+									</conditions>
+								</line>
+								<line number="219" hits="0" branch="false"/>
+								<line number="220" hits="0" branch="false"/>
+								<line number="223" hits="1" branch="false"/>
+								<line number="224" hits="1" branch="false"/>
+								<line number="226" hits="1" branch="false"/>
+							</lines>
+						</method>
+						<method name="buildAsset" signature="(Ljava/lang/String;Ljava/lang/String;Z)Ljava/lang/String;" line-rate="0.75" branch-rate="0.5" complexity="0">
+							<lines>
+								<line number="305" hits="2" branch="true" condition-coverage="50% (1/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="50%"/>
+									</conditions>
+								</line>
+								<line number="306" hits="2" branch="false"/>
+								<line number="308" hits="0" branch="false"/>
+								<line number="311" hits="2" branch="false"/>
+							</lines>
+						</method>
+						<method name="buildURL" signature="(Lorg/json/simple/JSONObject;Z)Ljava/lang/String;" line-rate="0.9285714285714286" branch-rate="0.8333333333333334" complexity="0">
+							<lines>
+								<line number="246" hits="6" branch="false"/>
+								<line number="247" hits="6" branch="false"/>
+								<line number="250" hits="6" branch="true" condition-coverage="100% (2/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="100%"/>
+									</conditions>
+								</line>
+								<line number="251" hits="1" branch="false"/>
+								<line number="252" hits="1" branch="false"/>
+								<line number="254" hits="5" branch="true" condition-coverage="100% (2/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="100%"/>
+									</conditions>
+								</line>
+								<line number="255" hits="1" branch="false"/>
+								<line number="256" hits="1" branch="false"/>
+								<line number="259" hits="4" branch="false"/>
+								<line number="260" hits="4" branch="false"/>
+								<line number="261" hits="4" branch="false"/>
+								<line number="262" hits="4" branch="false"/>
+								<line number="263" hits="4" branch="false"/>
+								<line number="266" hits="4" branch="true" condition-coverage="100% (2/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="100%"/>
+									</conditions>
+								</line>
+								<line number="267" hits="1" branch="false"/>
+								<line number="268" hits="1" branch="false"/>
+								<line number="270" hits="3" branch="true" condition-coverage="50% (1/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="50%"/>
+									</conditions>
+								</line>
+								<line number="271" hits="0" branch="false"/>
+								<line number="272" hits="0" branch="false"/>
+								<line number="274" hits="3" branch="true" condition-coverage="100% (2/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="100%"/>
+									</conditions>
+								</line>
+								<line number="275" hits="1" branch="false"/>
+								<line number="276" hits="1" branch="false"/>
+								<line number="280" hits="2" branch="false"/>
+								<line number="283" hits="2" branch="true" condition-coverage="50% (1/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="50%"/>
+									</conditions>
+								</line>
+								<line number="284" hits="2" branch="false"/>
+								<line number="287" hits="2" branch="false"/>
+								<line number="288" hits="2" branch="false"/>
+								<line number="291" hits="2" branch="false"/>
+							</lines>
+						</method>
+						<method name="execute" signature="()V" line-rate="0.8571428571428571" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="63" hits="2" branch="false"/>
+								<line number="64" hits="2" branch="false"/>
+								<line number="65" hits="2" branch="false"/>
+								<line number="66" hits="2" branch="false"/>
+								<line number="67" hits="2" branch="false"/>
+								<line number="68" hits="2" branch="false"/>
+								<line number="71" hits="2" branch="false"/>
+								<line number="79" hits="2" branch="false"/>
+								<line number="80" hits="2" branch="false"/>
+								<line number="81" hits="2" branch="false"/>
+								<line number="82" hits="0" branch="false"/>
+								<line number="83" hits="0" branch="false"/>
+								<line number="84" hits="2" branch="false"/>
+								<line number="86" hits="2" branch="false"/>
+							</lines>
+						</method>
+						<method name="getHttpServer" signature="()Lfi/iki/elonen/NanoHTTPD;" line-rate="1.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="327" hits="2" branch="false"/>
+							</lines>
+						</method>
+						<method name="hashKey" signature="(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;" line-rate="0.6666666666666666" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="177" hits="4" branch="false"/>
+								<line number="181" hits="4" branch="false"/>
+								<line number="182" hits="4" branch="false"/>
+								<line number="184" hits="4" branch="false"/>
+								<line number="185" hits="4" branch="false"/>
+								<line number="187" hits="4" branch="false"/>
+								<line number="189" hits="0" branch="false"/>
+								<line number="190" hits="0" branch="false"/>
+								<line number="191" hits="0" branch="false"/>
+								<line number="192" hits="0" branch="false"/>
+								<line number="193" hits="4" branch="false"/>
+								<line number="195" hits="4" branch="false"/>
+							</lines>
+						</method>
+						<method name="parseJSON" signature="(Ljava/lang/String;)Lorg/json/simple/JSONObject;" line-rate="1.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="200" hits="5" branch="false"/>
+								<line number="201" hits="5" branch="false"/>
+								<line number="203" hits="5" branch="false"/>
+								<line number="205" hits="5" branch="false"/>
+							</lines>
+						</method>
+						<method name="processPOST" signature="(Lfi/iki/elonen/NanoHTTPD$IHTTPSession;)Lfi/iki/elonen/NanoHTTPD$Response;" line-rate="0.0" branch-rate="0.0" complexity="0">
+							<lines>
+								<line number="96" hits="0" branch="false"/>
+								<line number="97" hits="0" branch="false"/>
+								<line number="99" hits="0" branch="false"/>
+								<line number="101" hits="0" branch="true" condition-coverage="0% (0/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="0%"/>
+									</conditions>
+								</line>
+								<line number="105" hits="0" branch="false"/>
+								<line number="107" hits="0" branch="false"/>
+								<line number="110" hits="0" branch="false"/>
+								<line number="113" hits="0" branch="true" condition-coverage="0% (0/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="0%"/>
+									</conditions>
+								</line>
+								<line number="116" hits="0" branch="false"/>
+								<line number="118" hits="0" branch="false"/>
+								<line number="120" hits="0" branch="true" condition-coverage="0% (0/4)">
+									<conditions>
+										<condition number="0" type="jump" coverage="0%"/>
+										<condition number="1" type="jump" coverage="0%"/>
+									</conditions>
+								</line>
+								<line number="122" hits="0" branch="false"/>
+								<line number="124" hits="0" branch="false"/>
+								<line number="127" hits="0" branch="false"/>
+								<line number="128" hits="0" branch="false"/>
+								<line number="132" hits="0" branch="false"/>
+								<line number="134" hits="0" branch="true" condition-coverage="0% (0/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="0%"/>
+									</conditions>
+								</line>
+								<line number="135" hits="0" branch="false"/>
+								<line number="138" hits="0" branch="false"/>
+								<line number="141" hits="0" branch="false"/>
+								<line number="143" hits="0" branch="false"/>
+								<line number="144" hits="0" branch="false"/>
+								<line number="145" hits="0" branch="false"/>
+								<line number="148" hits="0" branch="false"/>
+								<line number="150" hits="0" branch="false"/>
+								<line number="151" hits="0" branch="false"/>
+								<line number="154" hits="0" branch="false"/>
+								<line number="155" hits="0" branch="false"/>
+								<line number="156" hits="0" branch="false"/>
+								<line number="157" hits="0" branch="false"/>
+								<line number="158" hits="0" branch="false"/>
+								<line number="159" hits="0" branch="false"/>
+								<line number="160" hits="0" branch="false"/>
+								<line number="161" hits="0" branch="false"/>
+								<line number="162" hits="0" branch="false"/>
+								<line number="165" hits="0" branch="false"/>
+								<line number="166" hits="0" branch="false"/>
+							</lines>
+						</method>
+						<method name="shutdown" signature="()V" line-rate="1.0" branch-rate="0.5" complexity="0">
+							<lines>
+								<line number="317" hits="1" branch="false"/>
+								<line number="318" hits="1" branch="true" condition-coverage="50% (1/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="50%"/>
+									</conditions>
+								</line>
+								<line number="319" hits="1" branch="false"/>
+								<line number="321" hits="1" branch="false"/>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="37" hits="1" branch="false"/>
+						<line number="42" hits="12" branch="false"/>
+						<line number="43" hits="12" branch="false"/>
+						<line number="44" hits="12" branch="false"/>
+						<line number="45" hits="12" branch="false"/>
+						<line number="46" hits="12" branch="false"/>
+						<line number="47" hits="12" branch="false"/>
+						<line number="56" hits="12" branch="false"/>
+						<line number="57" hits="12" branch="false"/>
+						<line number="58" hits="12" branch="false"/>
+						<line number="63" hits="2" branch="false"/>
+						<line number="64" hits="2" branch="false"/>
+						<line number="65" hits="2" branch="false"/>
+						<line number="66" hits="2" branch="false"/>
+						<line number="67" hits="2" branch="false"/>
+						<line number="68" hits="2" branch="false"/>
+						<line number="71" hits="2" branch="false"/>
+						<line number="79" hits="2" branch="false"/>
+						<line number="80" hits="2" branch="false"/>
+						<line number="81" hits="2" branch="false"/>
+						<line number="82" hits="0" branch="false"/>
+						<line number="83" hits="0" branch="false"/>
+						<line number="84" hits="2" branch="false"/>
+						<line number="86" hits="2" branch="false"/>
+						<line number="96" hits="0" branch="false"/>
+						<line number="97" hits="0" branch="false"/>
+						<line number="99" hits="0" branch="false"/>
+						<line number="101" hits="0" branch="true" condition-coverage="0% (0/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="0%"/>
+							</conditions>
+						</line>
+						<line number="105" hits="0" branch="false"/>
+						<line number="107" hits="0" branch="false"/>
+						<line number="110" hits="0" branch="false"/>
+						<line number="113" hits="0" branch="true" condition-coverage="0% (0/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="0%"/>
+							</conditions>
+						</line>
+						<line number="116" hits="0" branch="false"/>
+						<line number="118" hits="0" branch="false"/>
+						<line number="120" hits="0" branch="true" condition-coverage="0% (0/4)">
+							<conditions>
+								<condition number="0" type="jump" coverage="0%"/>
+								<condition number="1" type="jump" coverage="0%"/>
+							</conditions>
+						</line>
+						<line number="122" hits="0" branch="false"/>
+						<line number="124" hits="0" branch="false"/>
+						<line number="127" hits="0" branch="false"/>
+						<line number="128" hits="0" branch="false"/>
+						<line number="132" hits="0" branch="false"/>
+						<line number="134" hits="0" branch="true" condition-coverage="0% (0/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="0%"/>
+							</conditions>
+						</line>
+						<line number="135" hits="0" branch="false"/>
+						<line number="138" hits="0" branch="false"/>
+						<line number="141" hits="0" branch="false"/>
+						<line number="143" hits="0" branch="false"/>
+						<line number="144" hits="0" branch="false"/>
+						<line number="145" hits="0" branch="false"/>
+						<line number="148" hits="0" branch="false"/>
+						<line number="150" hits="0" branch="false"/>
+						<line number="151" hits="0" branch="false"/>
+						<line number="154" hits="0" branch="false"/>
+						<line number="155" hits="0" branch="false"/>
+						<line number="156" hits="0" branch="false"/>
+						<line number="157" hits="0" branch="false"/>
+						<line number="158" hits="0" branch="false"/>
+						<line number="159" hits="0" branch="false"/>
+						<line number="160" hits="0" branch="false"/>
+						<line number="161" hits="0" branch="false"/>
+						<line number="162" hits="0" branch="false"/>
+						<line number="165" hits="0" branch="false"/>
+						<line number="166" hits="0" branch="false"/>
+						<line number="177" hits="4" branch="false"/>
+						<line number="181" hits="4" branch="false"/>
+						<line number="182" hits="4" branch="false"/>
+						<line number="184" hits="4" branch="false"/>
+						<line number="185" hits="4" branch="false"/>
+						<line number="187" hits="4" branch="false"/>
+						<line number="189" hits="0" branch="false"/>
+						<line number="190" hits="0" branch="false"/>
+						<line number="191" hits="0" branch="false"/>
+						<line number="192" hits="0" branch="false"/>
+						<line number="193" hits="4" branch="false"/>
+						<line number="195" hits="4" branch="false"/>
+						<line number="200" hits="5" branch="false"/>
+						<line number="201" hits="5" branch="false"/>
+						<line number="203" hits="5" branch="false"/>
+						<line number="205" hits="5" branch="false"/>
+						<line number="216" hits="1" branch="false"/>
+						<line number="218" hits="1" branch="true" condition-coverage="50% (1/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="50%"/>
+							</conditions>
+						</line>
+						<line number="219" hits="0" branch="false"/>
+						<line number="220" hits="0" branch="false"/>
+						<line number="223" hits="1" branch="false"/>
+						<line number="224" hits="1" branch="false"/>
+						<line number="226" hits="1" branch="false"/>
+						<line number="230" hits="1" branch="false"/>
+						<line number="232" hits="1" branch="false"/>
+						<line number="246" hits="6" branch="false"/>
+						<line number="247" hits="6" branch="false"/>
+						<line number="250" hits="6" branch="true" condition-coverage="100% (2/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="100%"/>
+							</conditions>
+						</line>
+						<line number="251" hits="1" branch="false"/>
+						<line number="252" hits="1" branch="false"/>
+						<line number="254" hits="5" branch="true" condition-coverage="100% (2/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="100%"/>
+							</conditions>
+						</line>
+						<line number="255" hits="1" branch="false"/>
+						<line number="256" hits="1" branch="false"/>
+						<line number="259" hits="4" branch="false"/>
+						<line number="260" hits="4" branch="false"/>
+						<line number="261" hits="4" branch="false"/>
+						<line number="262" hits="4" branch="false"/>
+						<line number="263" hits="4" branch="false"/>
+						<line number="266" hits="4" branch="true" condition-coverage="100% (2/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="100%"/>
+							</conditions>
+						</line>
+						<line number="267" hits="1" branch="false"/>
+						<line number="268" hits="1" branch="false"/>
+						<line number="270" hits="3" branch="true" condition-coverage="50% (1/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="50%"/>
+							</conditions>
+						</line>
+						<line number="271" hits="0" branch="false"/>
+						<line number="272" hits="0" branch="false"/>
+						<line number="274" hits="3" branch="true" condition-coverage="100% (2/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="100%"/>
+							</conditions>
+						</line>
+						<line number="275" hits="1" branch="false"/>
+						<line number="276" hits="1" branch="false"/>
+						<line number="280" hits="2" branch="false"/>
+						<line number="283" hits="2" branch="true" condition-coverage="50% (1/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="50%"/>
+							</conditions>
+						</line>
+						<line number="284" hits="2" branch="false"/>
+						<line number="287" hits="2" branch="false"/>
+						<line number="288" hits="2" branch="false"/>
+						<line number="291" hits="2" branch="false"/>
+						<line number="305" hits="2" branch="true" condition-coverage="50% (1/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="50%"/>
+							</conditions>
+						</line>
+						<line number="306" hits="2" branch="false"/>
+						<line number="308" hits="0" branch="false"/>
+						<line number="311" hits="2" branch="false"/>
+						<line number="317" hits="1" branch="false"/>
+						<line number="318" hits="1" branch="true" condition-coverage="50% (1/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="50%"/>
+							</conditions>
+						</line>
+						<line number="319" hits="1" branch="false"/>
+						<line number="321" hits="1" branch="false"/>
+						<line number="327" hits="2" branch="false"/>
+					</lines>
+				</class>
+				<class name="life.qbic.service.NexusListenerService$1" filename="life/qbic/service/NexusListenerService.java" line-rate="0.5" branch-rate="1.0" complexity="3.6666666666666665">
+					<methods>
+						<method name="&lt;init&gt;" signature="(Llife/qbic/service/NexusListenerService;I)V" line-rate="1.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="71" hits="2" branch="false"/>
+							</lines>
+						</method>
+						<method name="serve" signature="(Lfi/iki/elonen/NanoHTTPD$IHTTPSession;)Lfi/iki/elonen/NanoHTTPD$Response;" line-rate="0.0" branch-rate="1.0" complexity="0">
+							<lines>
+								<line number="75" hits="0" branch="false"/>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="71" hits="2" branch="false"/>
+						<line number="75" hits="0" branch="false"/>
+					</lines>
+				</class>
+			</classes>
+		</package>
+	</packages>
+</coverage>

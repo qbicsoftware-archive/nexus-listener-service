@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Client.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Nexus-Listener Service</a> &gt; <a href="index.source.html" class="el_package">life.qbic.service</a> &gt; <span class="el_source">Client.java</span></div><h1>Client.java</h1><pre class="source lang-java linenums">package life.qbic.service;
+
+import life.qbic.exceptions.ApplicationException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+
+/**
+ * This Class is responsible for downloading the changed files from the repository to a temp location in order to make it available for the class FileSystemHandler
+ */
+public class Client {
+
+    private String url;
+    private String fileName;
+    private String fileFormat;
+    private String tmpFilePath;
+
+<span class="fc" id="L24">    private static final Logger LOG = LogManager.getLogger(Client.class);</span>
+
+
+<span class="fc" id="L27">    public Client(String url){</span>
+<span class="fc" id="L28">        this.url = url;</span>
+<span class="fc" id="L29">        filterName(url);</span>
+<span class="fc" id="L30">    }</span>
+
+    public void downloadFromURL(){
+
+        try{
+<span class="fc" id="L35">            final URL website = new URL(url);</span>
+<span class="fc" id="L36">            LOG.info(&quot;Downloading from {}&quot;, url);</span>
+<span class="fc" id="L37">            final ReadableByteChannel rbc = Channels.newChannel(website.openStream());</span>
+
+<span class="fc" id="L39">            final File tempFile = File.createTempFile(fileName,fileFormat);</span>
+
+<span class="fc" id="L41">            final FileOutputStream fos = new FileOutputStream(tempFile); //path to where the file is written</span>
+<span class="fc" id="L42">            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE); //write</span>
+<span class="fc" id="L43">            tmpFilePath = tempFile.getAbsolutePath();</span>
+
+<span class="fc" id="L45">            LOG.info(&quot;DOWNLOAD: the file was downloaded to {}&quot;, tmpFilePath);</span>
+<span class="fc" id="L46">            fos.close();</span>
+
+<span class="fc" id="L48">        } catch (IOException e) {</span>
+<span class="fc" id="L49">            LOG.error(&quot;ERROR WHILE DOWNLOADING FILE: IOException &quot;, e);</span>
+<span class="fc" id="L50">            throw new ApplicationException(&quot;ERROR WHILE DOWNLOADING FILE: IOException&quot;);</span>
+
+<span class="fc" id="L52">        }</span>
+
+<span class="fc" id="L54">    }</span>
+
+    //This Method retrieves the artifact name from the URL in order to provide proper naming of the download file
+    private void filterName(String url){
+
+<span class="fc" id="L59">        String[] splitName = url.split(&quot;/&quot;);</span>
+<span class="fc" id="L60">        String name = splitName[splitName.length -1];</span>
+<span class="fc" id="L61">        int index = 0;</span>
+
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        for(int i = name.length() -1 ;  0 &lt; i; i--){</span>
+            //find first dot from behind
+<span class="fc bfc" id="L65" title="All 2 branches covered.">            if(name.charAt(i) == '.'){</span>
+<span class="fc" id="L66">                index = i;</span>
+<span class="fc" id="L67">                break;</span>
+            }
+        }
+
+<span class="fc" id="L71">        fileName = name.substring(0,index);</span>
+<span class="fc" id="L72">        fileFormat = name.substring(index);</span>
+
+<span class="fc" id="L74">    }</span>
+
+    public String getTmpFilePath() {
+<span class="fc" id="L77">        return tmpFilePath;</span>
+    }
+
+    public String getFileName() {
+<span class="fc" id="L81">        return fileName;</span>
+    }
+
+    public String getFileFormat() {
+<span class="fc" id="L85">        return fileFormat;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

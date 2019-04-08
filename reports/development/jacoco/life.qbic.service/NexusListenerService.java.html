@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NexusListenerService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Nexus-Listener Service</a> &gt; <a href="index.source.html" class="el_package">life.qbic.service</a> &gt; <span class="el_source">NexusListenerService.java</span></div><h1>NexusListenerService.java</h1><pre class="source lang-java linenums">package life.qbic.service;
+
+
+import life.qbic.cli.QBiCTool;
+import life.qbic.exceptions.ApplicationException;
+
+import fi.iki.elonen.NanoHTTPD;
+import fi.iki.elonen.NanoHTTPD.Response;
+import fi.iki.elonen.NanoHTTPD.IHTTPSession;
+
+import static fi.iki.elonen.NanoHTTPD.MIME_PLAINTEXT;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.commons.codec.binary.Hex;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import java.io.IOException;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.*;
+
+
+/**
+ * Implementation of Nexus-Listener Service. Its command-line arguments are contained in instances of {@link NexusListenerCommand}.
+ */
+public class NexusListenerService extends QBiCTool&lt;NexusListenerCommand&gt; {
+
+<span class="fc" id="L37">    private static final Logger LOG = LogManager.getLogger(NexusListenerService.class);</span>
+    private volatile NanoHTTPD httpServer;
+    private final AtomicBoolean serverStarted;
+
+    //Commandline Arguments
+<span class="fc" id="L42">    private String baseRepo = &quot;&quot;;</span>
+<span class="fc" id="L43">    private List&lt;String&gt; artifacts = new ArrayList();</span>
+<span class="fc" id="L44">    private String secretKey = &quot;&quot;;</span>
+<span class="fc" id="L45">    private String url = &quot;&quot;;</span>
+<span class="fc" id="L46">    private String outPortlet = &quot;&quot;;</span>
+<span class="fc" id="L47">    private String outArtifacts = &quot;&quot;;</span>
+
+
+    /**
+     * Constructor.
+     *
+     * @param command an object that represents the parsed command-line arguments.
+     */
+    public NexusListenerService(final NexusListenerCommand command) {
+<span class="fc" id="L56">        super(command);</span>
+<span class="fc" id="L57">        serverStarted = new AtomicBoolean(false);</span>
+<span class="fc" id="L58">    }</span>
+
+    @Override
+    public void execute() {
+        // get the parsed command-line arguments
+<span class="fc" id="L63">        final NexusListenerCommand command = super.getCommand();</span>
+<span class="fc" id="L64">        baseRepo = command.url;</span>
+<span class="fc" id="L65">        secretKey = command.key;</span>
+<span class="fc" id="L66">        artifacts = command.artifactType;</span>
+<span class="fc" id="L67">        outArtifacts = command.outNonPortlet;</span>
+<span class="fc" id="L68">        outPortlet = command.outPortlet;</span>
+
+
+<span class="fc" id="L71">        httpServer = new NanoHTTPD(command.port) {</span>
+            @Override
+            public Response serve(IHTTPSession session) {
+
+<span class="nc" id="L75">                return processPOST(session);</span>
+            }
+        };
+        try {
+<span class="fc" id="L79">            httpServer.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);</span>
+<span class="fc" id="L80">            serverStarted.set(true);</span>
+<span class="fc" id="L81">            LOG.info(&quot;Listening in port {}&quot;, command.port);</span>
+<span class="nc" id="L82">        } catch (IOException e) {</span>
+<span class="nc" id="L83">            throw new ApplicationException(String.format(&quot;Could not start http server using port %d&quot;, command.port), e);</span>
+<span class="fc" id="L84">        }</span>
+
+<span class="fc" id="L86">    }</span>
+
+
+    /**
+     * This Method processes the POST-request of the Repository that notifies the server about changes
+     *
+     * @param session
+     * @return
+     */
+    public Response processPOST(IHTTPSession session) {
+<span class="nc" id="L96">        LOG.info(&quot;processing POST request&quot;);</span>
+<span class="nc" id="L97">        Map&lt;String, String&gt; files = new HashMap&lt;&gt;();</span>
+        Map&lt;String, String&gt; headers;
+<span class="nc" id="L99">        NanoHTTPD.Method method = session.getMethod();</span>
+
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (NanoHTTPD.Method.POST.equals(method)) {</span>
+            try {
+
+                //need header information to get the signature (HMAC hashed value)
+<span class="nc" id="L105">                headers = session.getHeaders();</span>
+                //need to do parseBody() in order to fill the map files with the body of the session
+<span class="nc" id="L107">                session.parseBody(files);</span>
+
+                // TODO: can we get &quot;postData&quot; from HTTPSession.POST_DATA ???
+<span class="nc" id="L110">                final String payload = files.get(&quot;postData&quot;);</span>
+
+                //verify data: valid repository sends Post request (e.g nexus)
+<span class="nc bnc" id="L113" title="All 2 branches missed.">                if (hashKey(secretKey, payload).equals(headers.get(&quot;x-nexus-webhook-signature&quot;))) {</span>
+
+                    // payload can be turned into a JSON object
+<span class="nc" id="L116">                    JSONObject jsonBody = parseJSON(payload);</span>
+
+<span class="nc" id="L118">                    String artifactName = artifactNameRelevant(jsonBody);</span>
+
+<span class="nc bnc" id="L120" title="All 4 branches missed.">                    if (artifacts.contains(artifactName) &amp;&amp; actionTypRelevant(jsonBody)) {</span>
+
+<span class="nc" id="L122">                        boolean isPortlet = artifactName.equals(&quot;portlet&quot;);</span>
+
+<span class="nc" id="L124">                        url = buildURL(jsonBody,isPortlet);</span>
+
+                        //download the file temporarily
+<span class="nc" id="L127">                        Client client = new Client(url);</span>
+<span class="nc" id="L128">                        client.downloadFromURL();</span>
+
+                        FileSystemHandler fsh;
+                        //the new file should be named without the numbers generated by tempFile creator thus use name from URL
+<span class="nc" id="L132">                        String[] name = url.split(&quot;/&quot;);</span>
+
+<span class="nc bnc" id="L134" title="All 2 branches missed.">                        if(isPortlet){</span>
+<span class="nc" id="L135">                            fsh = new FileSystemHandler(client.getTmpFilePath(),outPortlet,name[name.length -1]);</span>
+
+                        }else{
+<span class="nc" id="L138">                            fsh = new FileSystemHandler(client.getTmpFilePath(),outArtifacts,name[name.length -1]);</span>
+                        }
+                        //move the temp file to the desired path
+<span class="nc" id="L141">                        fsh.move();</span>
+
+<span class="nc" id="L143">                        LOG.info(&quot;SUCCESS: the POST request has been successfully processed&quot;);</span>
+<span class="nc" id="L144">                    } else {</span>
+<span class="nc" id="L145">                        LOG.info(&quot;NOT RELEVANT: the changed artifact is not specified in the commandline&quot;);</span>
+                    }
+
+<span class="nc" id="L148">                    return NanoHTTPD.newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, &quot;Ok&quot;); // Or postParameter.</span>
+                } else {
+<span class="nc" id="L150">                    LOG.error(&quot;UNVERIFIED DATA: the payload of the POST request cannot be validated (wrong payload or nexus-webhook-signature)&quot;);</span>
+<span class="nc" id="L151">                    return NanoHTTPD.newFixedLengthResponse(Response.Status.INTERNAL_ERROR,MIME_PLAINTEXT,&quot;OK&quot;);</span>
+                }
+
+<span class="nc" id="L154">            } catch (IOException ioe) {</span>
+<span class="nc" id="L155">                LOG.error(&quot;SERVER INTERNAL ERROR: IOException&quot;, ioe);</span>
+<span class="nc" id="L156">                return NanoHTTPD.newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, &quot;SERVER INTERNAL ERROR: IOException: &quot; + ioe.getMessage());</span>
+<span class="nc" id="L157">            } catch (NanoHTTPD.ResponseException re) {</span>
+<span class="nc" id="L158">                LOG.error(&quot;NO RESPONSE FROM SERVER: ResponseException&quot;, re);</span>
+<span class="nc" id="L159">                return NanoHTTPD.newFixedLengthResponse(re.getStatus(), MIME_PLAINTEXT, re.getMessage());</span>
+<span class="nc" id="L160">            } catch (ParseException pe) {</span>
+<span class="nc" id="L161">                LOG.error(&quot;ERROR WHILE PARSING BODY TO JSON: ParseException&quot;, pe);</span>
+<span class="nc" id="L162">                return NanoHTTPD.newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, pe.getMessage());</span>
+            }
+        }
+<span class="nc" id="L165">        LOG.info(&quot;NO POST: the request is no POST request and thus does not get processed&quot;);</span>
+<span class="nc" id="L166">        return NanoHTTPD.newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, &quot;Ok&quot;); // Or postParameter.</span>
+    }
+
+
+    /**
+     * Method that verifies that the data was send by nexus
+     *
+     * @param secretKey, message, hash
+     * @return
+     */
+    public String hashKey(String secretKey, String message) {
+<span class="fc" id="L177">        String hmac = &quot;&quot;;</span>
+
+        try {
+
+<span class="fc" id="L181">            Mac mac = Mac.getInstance(&quot;HmacSHA1&quot;);</span>
+<span class="fc" id="L182">            SecretKeySpec secret = new SecretKeySpec(secretKey.getBytes(), &quot;HmacSHA1&quot;);</span>
+
+<span class="fc" id="L184">            mac.init(secret);</span>
+<span class="fc" id="L185">            byte[] digest = mac.doFinal(message.getBytes());</span>
+
+<span class="fc" id="L187">            hmac = Hex.encodeHexString(digest);</span>
+
+<span class="nc" id="L189">        } catch (NoSuchAlgorithmException nsae) {</span>
+<span class="nc" id="L190">            LOG.error(&quot;ERROR WHILE HASHING KEY: NoSuchAlgorithmException &quot; + nsae.getMessage());</span>
+<span class="nc" id="L191">        } catch (InvalidKeyException rk) {</span>
+<span class="nc" id="L192">            LOG.error(&quot;ERROR WHILE HASHING KEY: InvalidKeyException &quot; + rk.getMessage());</span>
+<span class="pc" id="L193">        }</span>
+
+<span class="fc" id="L195">        return hmac;</span>
+    }
+
+
+    private JSONObject parseJSON(String toJSON) throws ParseException {
+<span class="fc" id="L200">        JSONParser parser = new JSONParser();</span>
+<span class="fc" id="L201">        JSONObject json = (JSONObject) parser.parse(toJSON);</span>
+
+<span class="fc" id="L203">        LOG.info(&quot;PARSING: POST body to JSON&quot;);</span>
+
+<span class="fc" id="L205">        return json;</span>
+    }
+
+
+    /**
+     * Returns the type of the artifact from the artifact name
+     * @param jsonBody
+     * @return
+     */
+    public String artifactNameRelevant(JSONObject jsonBody) throws ParseException{
+
+<span class="fc" id="L216">        String componentName = (parseJSON(jsonBody.get(&quot;component&quot;).toString()).get(&quot;name&quot;)).toString();</span>
+
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">        if(!componentName.contains(&quot;-&quot;)){</span>
+<span class="nc" id="L219">            LOG.info(&quot;INVALID NAME: artifact name does not follow naming conventions&quot;);</span>
+<span class="nc" id="L220">            return componentName;</span>
+        }
+
+<span class="fc" id="L223">        String[] splitName = componentName.split(&quot;-&quot;);</span>
+<span class="fc" id="L224">        String artifact = splitName[splitName.length - 1];</span>
+
+<span class="fc" id="L226">        return artifact;</span>
+    }
+
+    public boolean actionTypRelevant(JSONObject jsonBody){
+<span class="fc" id="L230">        String action = jsonBody.get(&quot;action&quot;).toString();</span>
+
+<span class="fc" id="L232">        return action.equals(&quot;UPDATED&quot;);</span>
+    }
+
+
+    /**
+     * Method that builds the URL of the updated repository
+     *
+     * @param body
+     * @return
+     */
+    public String buildURL(JSONObject body, boolean isPortlet) throws ParseException {
+
+
+        //access the POST request's parameters set empty String as Default in order to better process errors:
+<span class="fc" id="L246">        String repo = body.getOrDefault(&quot;repositoryName&quot;, &quot;&quot;).toString();</span>
+<span class="fc" id="L247">        String comp = body.getOrDefault(&quot;component&quot;, &quot;&quot;).toString();</span>
+
+        //Valid data?
+<span class="fc bfc" id="L250" title="All 2 branches covered.">        if (repo.equals(&quot;&quot;)) {</span>
+<span class="fc" id="L251">            LOG.error(&quot;PARSE EXCEPTION: Missing Information about the repositoryName&quot;);</span>
+<span class="fc" id="L252">            throw new ApplicationException(&quot;PARSE EXCEPTION: Missing Information about the repositoryName&quot;);</span>
+        }
+<span class="fc bfc" id="L254" title="All 2 branches covered.">        if (comp.equals(&quot;&quot;)) {</span>
+<span class="fc" id="L255">            LOG.error(&quot;PARSE EXCEPTION: Missing Information about the component&quot;);</span>
+<span class="fc" id="L256">            throw new ApplicationException(&quot;PARSE EXCEPTION: Missing Information about the component &quot;); //test if component is empty before accessing/parsing it in a later</span>
+        }
+
+<span class="fc" id="L259">        JSONObject component = parseJSON(comp); //need to access sub-elements of component!</span>
+<span class="fc" id="L260">        String name = component.getOrDefault(&quot;name&quot;, &quot;&quot;).toString();</span>
+<span class="fc" id="L261">        String group = component.getOrDefault(&quot;group&quot;, &quot;&quot;).toString().replace(&quot;.&quot;, &quot;/&quot;);</span>
+<span class="fc" id="L262">        String version = component.getOrDefault(&quot;version&quot;, &quot;&quot;).toString();</span>
+<span class="fc" id="L263">        String assetVersion = version;</span>
+
+        //Valid data?
+<span class="fc bfc" id="L266" title="All 2 branches covered.">        if (name.equals(&quot;&quot;)) {</span>
+<span class="fc" id="L267">            LOG.error(&quot;PARSE EXCEPTION: Missing Information about the components name&quot;);</span>
+<span class="fc" id="L268">            throw new ApplicationException(&quot;PARSE EXCEPTION: Missing Information about the components name&quot;);</span>
+        }
+<span class="pc bpc" id="L270" title="1 of 2 branches missed.">        if (group.equals(&quot;&quot;)) {</span>
+<span class="nc" id="L271">            LOG.error(&quot;PARSE EXCEPTION: Missing Information about the group&quot;);</span>
+<span class="nc" id="L272">            throw new ApplicationException(&quot;PARSE EXCEPTION: Missing Information about the group&quot;);</span>
+        }
+<span class="fc bfc" id="L274" title="All 2 branches covered.">        if (version.equals(&quot;&quot;)) {</span>
+<span class="fc" id="L275">            LOG.error(&quot;PARSE EXCEPTION: Missing Information about the components version&quot;);</span>
+<span class="fc" id="L276">            throw new ApplicationException(&quot;PARSE EXCEPTION: Missing Information about the components version&quot;);</span>
+        }
+
+        //if payload was fine build URL:
+<span class="fc" id="L280">        String asset = buildAsset(name, assetVersion, isPortlet);</span>
+
+        //process version, if snapshot process version for url (but not for asset specification!
+<span class="pc bpc" id="L283" title="1 of 2 branches missed.">        if (repo.contains(&quot;snapshot&quot;)) {</span>
+<span class="fc" id="L284">            version = version.split(&quot;-&quot;)[0] + &quot;-SNAPSHOT&quot;; //raw version</span>
+        }
+
+<span class="fc" id="L287">        String url = baseRepo + &quot;/repository/&quot; + repo + &quot;/&quot; + group + &quot;/&quot; + name + &quot;/&quot; + version + &quot;/&quot; + asset; //need asset specification?</span>
+<span class="fc" id="L288">        LOG.info(url);</span>
+
+
+<span class="fc" id="L291">        return url;</span>
+    }
+
+
+    /**
+     * Method that specifies the asset from the updated repository, which contains either the .war or the .jar file
+     *
+     * @param
+     * @return
+     */
+    private String buildAsset(String name, String version, boolean isPortlet) {
+
+        String format;
+
+<span class="pc bpc" id="L305" title="1 of 2 branches missed.">        if (isPortlet) {</span>
+<span class="fc" id="L306">            format = &quot;.war&quot;;</span>
+        } else {
+<span class="nc" id="L308">            format = &quot;.jar&quot;;</span>
+        }
+
+<span class="fc" id="L311">        return name + &quot;-&quot; + version + format;</span>
+    }
+
+
+    @Override
+    public void shutdown() {
+<span class="fc" id="L317">        LOG.info(&quot;Shutting down&quot;);</span>
+<span class="pc bpc" id="L318" title="1 of 2 branches missed.">        if (serverStarted.get()) {</span>
+<span class="fc" id="L319">            httpServer.stop();</span>
+        }
+<span class="fc" id="L321">    }</span>
+
+    //###############GETTER-Methods ####################################################################################
+
+
+    public NanoHTTPD getHttpServer() {
+<span class="fc" id="L327">        return httpServer;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

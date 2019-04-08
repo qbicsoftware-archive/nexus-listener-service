@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileSystemHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Nexus-Listener Service</a> &gt; <a href="index.source.html" class="el_package">life.qbic.service</a> &gt; <span class="el_source">FileSystemHandler.java</span></div><h1>FileSystemHandler.java</h1><pre class="source lang-java linenums">package life.qbic.service;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+/**
+ * This class is responsible for moving the the changed artifact to the desired location e.g. to the liferay filesystem in order to update the portal
+ */
+public class FileSystemHandler {
+
+<span class="fc" id="L17">    private static final Logger LOG = LogManager.getLogger(FileSystemHandler.class);</span>
+
+    private String tempPath;
+    private String outPath;
+
+<span class="fc" id="L22">    public FileSystemHandler(String tempPath, String out, String fileName){</span>
+<span class="fc" id="L23">        String fileSeparator = System.getProperty(&quot;file.separator&quot;);</span>
+
+<span class="fc" id="L25">        this.tempPath = tempPath;</span>
+<span class="fc" id="L26">        this.outPath = out + fileSeparator + fileName;</span>
+
+<span class="fc" id="L28">    }</span>
+
+    /**
+     * This method moves the temporary file created with the client to the desired output path specified with the commandline argument
+     * @throws IOException
+     */
+    public void move(){
+
+        try{
+<span class="fc" id="L37">        Path artifactFile = Paths.get(tempPath);</span>
+<span class="fc" id="L38">        Files.setPosixFilePermissions(artifactFile, java.nio.file.attribute.PosixFilePermissions.fromString(&quot;rw-rw-rw-&quot;));</span>
+
+<span class="fc" id="L40">        Path movedFile = Paths.get(outPath);</span>
+
+<span class="fc" id="L42">        LOG.info(&quot;Moving file from {} to {}&quot;, artifactFile, movedFile);</span>
+<span class="fc" id="L43">        Files.move(artifactFile,movedFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);</span>
+<span class="fc" id="L44">        Files.setPosixFilePermissions(movedFile, java.nio.file.attribute.PosixFilePermissions.fromString(&quot;rw-rw-rw-&quot;));</span>
+
+<span class="fc" id="L46">        LOG.info(&quot;FILE MOVED: the downloaded file is now moved to the desired path&quot;);</span>
+
+<span class="nc" id="L48">        }catch (IOException io){</span>
+            //delete tmp file if cannot be moved
+<span class="nc" id="L50">            new File(tempPath).delete();</span>
+
+<span class="nc" id="L52">            LOG.error(&quot;ERROR WHILE MOVING FILE: IOException &quot;+io.getMessage());</span>
+<span class="fc" id="L53">        }</span>
+<span class="fc" id="L54">    }</span>
+
+
+    public String getTempPath() {
+<span class="fc" id="L58">        return tempPath;</span>
+    }
+
+    public String getOutPath() {
+<span class="fc" id="L62">        return outPath;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

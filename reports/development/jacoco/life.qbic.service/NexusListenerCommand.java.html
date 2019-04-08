@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NexusListenerCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Nexus-Listener Service</a> &gt; <a href="index.source.html" class="el_package">life.qbic.service</a> &gt; <span class="el_source">NexusListenerCommand.java</span></div><h1>NexusListenerCommand.java</h1><pre class="source lang-java linenums">package life.qbic.service;
+
+import life.qbic.cli.AbstractCommand;
+
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import java.util.List;
+
+
+/**
+ * Abstraction of command-line arguments that will be passed to {@link NexusListenerService} at construction time.
+ * 
+ * 
+ */
+@Command(
+   name=&quot;nexus-listener&quot;,
+   description=&quot;Service that listenes for changes in the Nexus repository and updates the testing-portal with the new file(s).&quot;)
+<span class="fc" id="L19">public class NexusListenerCommand extends AbstractCommand {</span>
+
+		@Option(names={&quot;-p&quot;, &quot;--port&quot;}, description=&quot;Port on which this service will listen to requests.&quot;, required=true)
+	    public int port;
+		
+		@Option(names={&quot;-k&quot;, &quot;--key&quot;}, description=&quot;Secrete key which is used to create HMAC payload.&quot;, required=true)
+	    public String key;
+
+		@Option(names={&quot;-u&quot;, &quot;--url&quot;}, description=&quot;Base repository URL.&quot;, required=true)
+	    public String url;
+
+		@Option(names={&quot;-f&quot;, &quot;--portlet-folder&quot;}, description=&quot;Folder on which portlets are copied.&quot;, required=true)
+	    public String outPortlet;
+		
+		@Option(names={&quot;-o&quot;, &quot;--non-portlet-folder&quot;}, description=&quot;Folder on which non-portlets are copied.&quot;, required=true)
+	    public String outNonPortlet;
+
+	    @CommandLine.Parameters(arity = &quot;1..*&quot;,description = &quot;List of types of artifacts to deploy (e.g portlet)&quot;)
+	    List&lt;String&gt; artifactType;
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
