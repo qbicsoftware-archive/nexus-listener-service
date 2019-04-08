@@ -1,49 +1,77 @@
-sudo: false
-dist: trusty
+# Build script for Travis CI
+#
+
+# use xenial distribution
+dist: xenial
+
+# no need to check for oracle's java
 language: java
 jdk: openjdk8
+
+
+# speed up builds by caching maven local repository
+# we are also using python via conda/pip
 cache:
   directories:
-  - $HOME/.m2/repository
+  - "$HOME/.m2/repository"
+  - "$HOME/.cache/pip"
+  - "$HOME/miniconda3"
+
+# as agreed in our SOP
 branches:
   only:
   - master
   - development
-before_install: unset _JAVA_OPTIONS
-install: true
-before_script: if [ "$VAADIN_CHARTS_LICENSE_CODE" != "" ]; then echo "$VAADIN_CHARTS_LICENSE_CODE"
-  > ~/.vaadin.charts.developer.license; fi;
-script: mvn --quiet --activate-profiles !development-build,!release-build --settings
-  .travis.settings.xml clean cobertura:cobertura install
-after_success:
+  # Travis treats pushed tags as branches
+  - /^[vV]?\d+\.\d+\.\d+$/ # matches e.g., v1.2.3, 1.2.3, V1.2.3
+
+# added to make logs look cleaner, crisper, certified fresh
+before_install: unset _JAVA_OPTIONS 
+
+# dependencies for report generation (use cache to speed up builds)
+install: 
+  - $HOME/miniconda3/bin/conda --version || ./.install-reports-dependencies.sh
+
+# check if we need to add a license file for Vaadin charts
+before_script: if [ "$VAADIN_CHARTS_LICENSE_CODE" != "" ]; then
+                  echo "$VAADIN_CHARTS_LICENSE_CODE" > ~/.vaadin.charts.developer.license;
+               fi;
+
+# as agreed in our SOP, build everything (don't deploy, just try to 'mvn package' locally, which covers unit tests)
+script: mvn --quiet --activate-profiles !development-build,!release-build --settings .travis.settings.xml clean cobertura:cobertura package
+# upload code coverage report, generate maven site (javadocs, documentation, static code analysis, etc.)
+after_success: 
 - bash <(curl -s https://codecov.io/bash)
-- mvn --quiet --activate-profiles !development-build,!release-build --settings .travis.settings.xml
-  site
+
+# upload to maven
 deploy:
+  # as agreed in our SOP, builds on development branch will deploy to our maven repository after validating
+  # the artifact has a proper SNAPSHOT version
+  # make sure to skip integration tests! (using -DskipITs)
 - skip_cleanup: true
   provider: script
-  script: mvn --quiet --activate-profiles development-build,!release-build --settings
-    .travis.settings.xml deploy
+  script: mvn --quiet --activate-profiles development-build,!release-build --settings .travis.settings.xml deploy -DskipITs
   on:
     branch: development
     condition: '"$TRAVIS_EVENT_TYPE" = "push"'
+  # as agreed in our SOP, releases are performed by tagging commits,
+  # the version string and version of dependencies are validated (no snapshots allowed)
 - skip_cleanup: true
   provider: script
-  script: mvn --quiet --activate-profiles !development-build,release-build --settings
-    .travis.settings.xml deploy
+  script: mvn --quiet --activate-profiles !development-build,release-build --settings .travis.settings.xml deploy -DskipITs
   on:
-    branch: master
     condition: '"$TRAVIS_EVENT_TYPE" = "push"'
-notifications:
-  email:
-    on_success: never
-    on_failure: never
-  slack:
-    on_success: never
-    on_failure: always
-    rooms:
-    - secure: '***'
+    tags: true
+
+# activate our conda environment, generate maven site and upload reports to gh-pages branch
+after_deploy:   
+  - echo ". $HOME/miniconda3/etc/profile.d/conda.sh" >> ~/.bashrc && source ~/.bashrc && conda activate qbic-docs-build
+  - mvn --quiet --activate-profiles !development-build,!release-build --settings .travis.settings.xml site 
+  - ./.generate-reports.py $TRAVIS_BRANCH $TRAVIS_REPO_SLUG "[skip travis] Updated gh-pages" "This commit was performed from travis-ci.com using a personal access key" "Build ID $TRAVIS_BUILD_ID" "Job ID TRAVIS_JOB_ID" "Branch $TRAVIS_BRANCH" "Log of this build found at $TRAVIS_JOB_WEB_URL"
+
+# credentials
 env:
   global:
-  - secure: BGpOLUHkaoXC553ieHZF+V9wzH35saNoABB/tk9l7CIjdQdTDoCleolXvDb0yA5ZV/4F6Kn+NHyefAiNxPYeWfPHo1+Nb2jfX35v4A2Jiu1sAamp+g5rn7eRL3zJHBhkD8dkLW1YOKKS3+mKO2wKN1WYP3oDeZ2GCZFPqGWX1W64KohYa6kNQzt5yAhMfseiEZNNY4bsErkz87xoUSw3gdwCUTrKGesKHxT8SfRsxcrFxjIm0yv0uQ8FvUlyeKYLmtiy1AYojwtWFfbSIPcMl5++U1bh6+7e5tIr/evPBQ1b8i1OU5K1t1TD5QW6j+T/YHbAokrmxTv1ya5gpttma+931UJrQAOmH0EotLqv+/A1uNymOStOoibOf3pLCHtGQyycXuflR2rqAuxcbj++a+Nx2H4iXPAEus9OoHruS7wS9c3voS4qgolkSDqTZEn7duJPqJPQi52OnCSGJwGhpRNyfEjpyiMMdsBalZdA52sVKMgJRoaBubRqaRZt9qlVpeBu5Z+HyrM6CGP8uq0n9s28pDkOVlSY78lOOnbBmXpMXqZtjhffqjKY5iRIDeNCz8VGNNwU6LV0PXiz6hk70hOPl/TkGTvUKhN6aphllb9qVcjGGJb1zYzBMkSh+RqYU5nvfdgPA2m1cg7VX0iOjdE1W580AhoUMfKYdUhE7EM=
-  - secure: FxDRcAYIchE6J7KHlcwtoGm1XU57vyqLSc80M6cpLvWjUtAbVjfAacxsAQI5/QHu7rgG67fL7KpAu99uTng//DWIK8BVaAKkM0BeGopuMHkadW7c+C/+2ErN8tMSr0PW9MEoIV/jWLzpvH/X6bG/WCb87wE+xkyoen2GM5Dsd7rdEvtqzV8VZVOKF//b3Ei/9qBVRRDdFydVFwanRqgl+fh/YCMZg4DgTiTTJbH+KDlRwZuhDE6arLnSTp+Rbmp5OCoMrqfVVRNckSmqitNEw3TBrK/FEx8LXPMTurCokwmo5l0rd1cfUUUfkhUT4d0rwB3EuU/LDwq50SnmCaSmcFvmmPBrCCJJYo6Aw3yi0rEwEZqmmNrQT0WDkYcUu4xFPGR2DjBch3sMtxMtWNk4ju+dZ775M0dvGSeMWyOH9oxllGF83Eb4SQ913/oHiKOsn/RYq/PIkmVOPX7HNmONlMK0QQfQyZH/DXxskd0+MKkphP2AQVIPCArPWKE/NdsT5vHg1LxqZzIxfrLS+3WHamyd9habGTrZlp9BQQ/3O9QbYXc5yT7K8eLCyFLxZnS5ZUkpoHmhNtb6CNX6/0H6k1tPq/+8P0dovJ57Vnjfxxx8GM8sdaXhd1j40opgy5Z2nTO1EZcMnhivYHJYh9i+ATbvDg67Q8dik40WT+XLs+c=
+  - secure: "BGpOLUHkaoXC553ieHZF+V9wzH35saNoABB/tk9l7CIjdQdTDoCleolXvDb0yA5ZV/4F6Kn+NHyefAiNxPYeWfPHo1+Nb2jfX35v4A2Jiu1sAamp+g5rn7eRL3zJHBhkD8dkLW1YOKKS3+mKO2wKN1WYP3oDeZ2GCZFPqGWX1W64KohYa6kNQzt5yAhMfseiEZNNY4bsErkz87xoUSw3gdwCUTrKGesKHxT8SfRsxcrFxjIm0yv0uQ8FvUlyeKYLmtiy1AYojwtWFfbSIPcMl5++U1bh6+7e5tIr/evPBQ1b8i1OU5K1t1TD5QW6j+T/YHbAokrmxTv1ya5gpttma+931UJrQAOmH0EotLqv+/A1uNymOStOoibOf3pLCHtGQyycXuflR2rqAuxcbj++a+Nx2H4iXPAEus9OoHruS7wS9c3voS4qgolkSDqTZEn7duJPqJPQi52OnCSGJwGhpRNyfEjpyiMMdsBalZdA52sVKMgJRoaBubRqaRZt9qlVpeBu5Z+HyrM6CGP8uq0n9s28pDkOVlSY78lOOnbBmXpMXqZtjhffqjKY5iRIDeNCz8VGNNwU6LV0PXiz6hk70hOPl/TkGTvUKhN6aphllb9qVcjGGJb1zYzBMkSh+RqYU5nvfdgPA2m1cg7VX0iOjdE1W580AhoUMfKYdUhE7EM="
+  - secure: "FxDRcAYIchE6J7KHlcwtoGm1XU57vyqLSc80M6cpLvWjUtAbVjfAacxsAQI5/QHu7rgG67fL7KpAu99uTng//DWIK8BVaAKkM0BeGopuMHkadW7c+C/+2ErN8tMSr0PW9MEoIV/jWLzpvH/X6bG/WCb87wE+xkyoen2GM5Dsd7rdEvtqzV8VZVOKF//b3Ei/9qBVRRDdFydVFwanRqgl+fh/YCMZg4DgTiTTJbH+KDlRwZuhDE6arLnSTp+Rbmp5OCoMrqfVVRNckSmqitNEw3TBrK/FEx8LXPMTurCokwmo5l0rd1cfUUUfkhUT4d0rwB3EuU/LDwq50SnmCaSmcFvmmPBrCCJJYo6Aw3yi0rEwEZqmmNrQT0WDkYcUu4xFPGR2DjBch3sMtxMtWNk4ju+dZ775M0dvGSeMWyOH9oxllGF83Eb4SQ913/oHiKOsn/RYq/PIkmVOPX7HNmONlMK0QQfQyZH/DXxskd0+MKkphP2AQVIPCArPWKE/NdsT5vHg1LxqZzIxfrLS+3WHamyd9habGTrZlp9BQQ/3O9QbYXc5yT7K8eLCyFLxZnS5ZUkpoHmhNtb6CNX6/0H6k1tPq/+8P0dovJ57Vnjfxxx8GM8sdaXhd1j40opgy5Z2nTO1EZcMnhivYHJYh9i+ATbvDg67Q8dik40WT+XLs+c="
+  - secure: "sD7li80M4Un9No+k/oitQ4YuaCeMxDN3AWZcn8/kx44c6yYDz0DpwuIDWUJX4e317bWbPexpN4BxNdJ3p4sRM+/2dVNztn/uqSgnmFzMkJ48QRtwSjqgDNFftCUGLGW7GUZbYhPtRz8D+aTZ83ZY+A1nrl59HkorywvWOiYxpMiFID04FP3ywseVo8MLWG/h7A1KCCnmN92AVzFHIsTmhF8z+6CWpmEpFq1WoGS4BMbHcwEGiIF43TheK9n74TkPz3jwaqGExJwDS51USCoDJYUtBX4U+x0nYi1kd+sS85hj4fI+bDXiFQtXn/l5iCxBUq/asaQfCdfGGPol2JOPD6oZ6v7pHzJa8QhsK+nZTi6MFyFc5+lBgc6I1mHQH4muvTZn9UnhKwxhi5mLPJsWW6qVdOuXCFr6TSvXT76OkBn5qbWtfqLW3WXoTFQzJYFqKQtPX37EAN/r5wZn9/slweIE9oejf7oRLFSG+gtSM6RUykKRfXza14pbKSfgfKTRLtBqpaDpZRw7Hz/R4DWQWRc2P/9VRHiTOD+aM/ig/r5JSH2PE6biStEmyez5o14gcV4WwApICxC/sxbBhM3egVmULvM6sYInwgK48qgznFvkCdjvjPpjs2AQ84GqkckTczi2C1qcp+tmm7wEY8jdQIHE2hYmj6Tiu1JCH64MpVY="
